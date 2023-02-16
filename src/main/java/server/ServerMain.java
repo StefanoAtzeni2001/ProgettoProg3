@@ -13,6 +13,7 @@ public class ServerMain extends Application{
 
     @Override
     public void start(Stage stage) throws IOException {
+
         URL serverUrl = ServerMain.class.getResource("/server.fxml");
         FXMLLoader fxmlLoader = new FXMLLoader(serverUrl);
         Scene scene = new Scene(fxmlLoader.load(), 300, 500);

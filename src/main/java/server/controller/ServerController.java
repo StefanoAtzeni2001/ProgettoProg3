@@ -2,17 +2,18 @@ package server.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
-import client.model.Email;
+import server.model.Email;
 import server.model.ServerModel;
-;
+
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-;
+
 
 public class ServerController {
     @FXML
@@ -33,6 +34,12 @@ public class ServerController {
     }
 
     private void startServer(){
+        MemoryManager mem=new MemoryManager();
+        System.out.println("something");
+        ArrayList<String> dest=new ArrayList<>();
+        dest.add("bob@maill.com");
+        dest.add("gbgg1@cc.com");
+        mem.addMail(new Email("bobf", dest, "bobf", "bobf","1"));
         try{
             socket=new ServerSocket(4242);
         }catch(Exception e){System.out.println("[SERVER] Error opening the socket");}

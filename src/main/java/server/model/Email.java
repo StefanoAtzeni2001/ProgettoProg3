@@ -15,11 +15,12 @@ public class Email implements Serializable {
     private LocalDateTime date;
 
 
-    public Email(String sender, List<String> receivers, String subject, String text) {
+    public Email(String sender, List<String> receivers, String subject, String text,String id) {
         this.sender = sender;
         this.receivers = new ArrayList<>(receivers);
         this.subject = subject;
         this.text = text;
+        this.ID=id;
     }
 
     public String getSender() {

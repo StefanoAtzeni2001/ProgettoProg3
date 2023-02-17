@@ -1,6 +1,6 @@
 package server.controller;
 
-import server.model.Email;
+import Shared.Email;
 import server.model.ServerModel;
 
 import java.io.*;
@@ -67,48 +67,6 @@ public class MemoryManager {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }
-    }
-    public boolean delete_Email(Email mail)
-    {
-        boolean ok = false;
-        String path;
-        File receiver;
-        for (String dest:mail.getReceivers()) {
-            path = dest + "/InArrivo/" + mail.getID();
-            receiver = new File(dirpath + "/" + path);
-
-            if (receiver.exists()) {
-                receiver.delete();
-                ok=true;
-                model.setLog(model.getLog() + "Email  " + mail.getID() + " eliminata da casella InArrivo di " + dest + "\n");
-            } else {
-                path = dest + "/Ricevute/" + mail.getID();
-                receiver = new File(dirpath + "/" + path);
-                if (receiver.exists()) {
-                    receiver.delete();
-                    ok=true;
-                    model.setLog(model.getLog() + "Email  " + mail.getID() + " eliminata da casella Ricevute di " + dest + "\n");
-                }else model.setLog(model.getLog() + "Email  " + mail.getID() + " non eliminatata in " + dest + "\n");
-            }
-        }
-        return ok;
-    }
-
-    public boolean move_email(String ID,String dest){
-        String path1 = dirpath+"/"+ dest + "/InArrivo/" + ID;
-        String path2 = dirpath+"/"+ dest + "/Ricevute/" + ID;
-
-        File sourceFile = new File(path1);
-        File targetFile = new File(path2);
-
-
-        if (sourceFile.renameTo(targetFile)) {
-            model.setLog("Email  " + ID + " inviata a " + dest + "\n");
-            return true;
-        } else {
-            System.err.println("Nessuna mail con ID "+ID+" in arrivo a "+dest);
-            return false;
         }
     }
 

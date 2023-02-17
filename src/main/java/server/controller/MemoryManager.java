@@ -1,6 +1,6 @@
 package server.controller;
 
-import server.model.Email;
+import Shared.Email;
 
 import java.io.*;
 import java.util.ArrayList;

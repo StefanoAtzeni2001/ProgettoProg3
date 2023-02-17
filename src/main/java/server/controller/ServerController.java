@@ -2,7 +2,8 @@ package server.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
-import server.model.Email;
+import  Shared.Email;
+import  Shared.Message;
 import server.model.ServerModel;
 
 import java.io.ObjectInputStream;
@@ -34,12 +35,12 @@ public class ServerController {
     }
 
     private void startServer(){
-        MemoryManager mem=new MemoryManager();
-        System.out.println("something");
-        ArrayList<String> dest=new ArrayList<>();
-        dest.add("bob@maill.com");
-        dest.add("gbgg1@cc.com");
-        mem.addMail(new Email("bobf", dest, "bobf", "bobf","1"));
+//        MemoryManager mem=new MemoryManager();
+//        System.out.println("something");
+//        ArrayList<String> dest=new ArrayList<>();
+//        dest.add("bob@maill.com");
+//        dest.add("gbgg1@cc.com");
+//        mem.addMail(new Email("bobf", dest, "bobf", "bobf","1"));
         try{
             socket=new ServerSocket(4242);
         }catch(Exception e){System.out.println("[SERVER] Error opening the socket");}
@@ -52,7 +53,7 @@ public class ServerController {
                     threadPool.execute(()->{ //quando arriva una richiesta viene assegnato il task a un thread della threadpool
                         try {
                             ObjectInputStream in = new ObjectInputStream(req.getInputStream());
-                            Email msg = (Email) in.readObject();
+                            Message msg = (Message) in.readObject();
                             System.out.print(msg);
                             model.setLog(model.getLog() + msg+"\n" );
                         }catch(Exception e ){System.out.println("[SERVER] Connection Error, Could not read from client");

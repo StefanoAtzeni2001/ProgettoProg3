@@ -1,4 +1,4 @@
-package client.model;
+package Shared;
 
 
 import java.io.Serializable;
@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Email implements Serializable {
-    private String ID;
+    private Integer id;
     private String sender;
     private List<String> receivers;
     private String subject;
@@ -16,11 +16,13 @@ public class Email implements Serializable {
     private LocalDateTime date;
 
 
-    public Email(String sender, List<String> receivers, String subject, String text) {
+    public Email(Integer id,String sender, List<String> receivers, String subject, String text,LocalDateTime date) {
+        this.id= id;
         this.sender = sender;
         this.receivers = new ArrayList<>(receivers);
         this.subject = subject;
         this.text = text;
+        this.date=date;
     }
 
     public String getSender() {
@@ -37,12 +39,14 @@ public class Email implements Serializable {
         return text;
     }
 
-    public String getID() {return ID;}
+    public Integer getID() {return id;}
+
+
+    @Override
+    public String toString() {
+        return  "[Da: " +sender + "]    "  + subject + " - " +   (text.length()>70 ? text.substring(0,40)+ "...": text);
+    }
 
     public LocalDateTime getDate() {return date;}
 
-
-    public String toString() {
-        return String.join(" - ", List.of(this.sender,this.subject));
-    }
 }

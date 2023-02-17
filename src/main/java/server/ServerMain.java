@@ -14,7 +14,7 @@ public class ServerMain extends Application{
     @Override
     public void start(Stage stage) throws IOException {
 
-        URL serverUrl = ServerMain.class.getResource("/server.fxml");
+        URL serverUrl = ServerMain.class.getResource("/ServerView/server.fxml");
         FXMLLoader fxmlLoader = new FXMLLoader(serverUrl);
         Scene scene = new Scene(fxmlLoader.load(), 300, 500);
         stage.setTitle("Email Server");

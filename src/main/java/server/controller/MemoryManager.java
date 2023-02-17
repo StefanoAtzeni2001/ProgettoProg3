@@ -1,6 +1,7 @@
 package server.controller;
 
 import server.model.Email;
+import server.model.ServerModel;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -9,13 +10,17 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 public class MemoryManager {
-    String  dirpath= "./src/main/resources/accounts";
+    ServerModel model;
+    String  dirpath= "./src/main/java/server/accounts";
     ArrayList<String> accounts;
-    public MemoryManager() {
+    public MemoryManager(ServerModel model) {
+
+        this.model=model;
 
         File dir = new File(dirpath);
         if (!dir.isDirectory())
             dir.mkdir();
+
         accounts = getAccounts(dir);
         System.out.println(accounts);
     }
@@ -40,14 +45,14 @@ public class MemoryManager {
             }catch (NoSuchElementException e){ corretto=false;}
            if (!corretto||!accounts.contains(dest)) err.add(dest);
         }
-        System.out.println("sto Inviando");
         if(err.isEmpty()) {
-            send(mail);
+            System.out.println("sto Inviando");
+            save(mail);
             return null;}
         else return err;
     }
 
-    private void send(Email mail) {
+    private void save(Email mail) {
         String path;
         File receiver;
         ObjectOutputStream out;
@@ -58,11 +63,52 @@ public class MemoryManager {
             try {
                 out=new ObjectOutputStream(new FileOutputStream(receiver)) ;
                 out.writeObject(mail);
-                System.out.println("dovrei aver scritto");
-
+                model.setLog(model.getLog() + "Email inviata da "+mail.getSender()+" a "+dest+"\n" );
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+    public boolean delete_Email(Email mail)
+    {
+        boolean ok = false;
+        String path;
+        File receiver;
+        for (String dest:mail.getReceivers()) {
+            path = dest + "/InArrivo/" + mail.getID();
+            receiver = new File(dirpath + "/" + path);
+
+            if (receiver.exists()) {
+                receiver.delete();
+                ok=true;
+                model.setLog(model.getLog() + "Email  " + mail.getID() + " eliminata da casella InArrivo di " + dest + "\n");
+            } else {
+                path = dest + "/Ricevute/" + mail.getID();
+                receiver = new File(dirpath + "/" + path);
+                if (receiver.exists()) {
+                    receiver.delete();
+                    ok=true;
+                    model.setLog(model.getLog() + "Email  " + mail.getID() + " eliminata da casella Ricevute di " + dest + "\n");
+                }else model.setLog(model.getLog() + "Email  " + mail.getID() + " non eliminatata in " + dest + "\n");
+            }
+        }
+        return ok;
+    }
+
+    public boolean move_email(String ID,String dest){
+        String path1 = dirpath+"/"+ dest + "/InArrivo/" + ID;
+        String path2 = dirpath+"/"+ dest + "/Ricevute/" + ID;
+
+        File sourceFile = new File(path1);
+        File targetFile = new File(path2);
+
+
+        if (sourceFile.renameTo(targetFile)) {
+            model.setLog("Email  " + ID + " inviata a " + dest + "\n");
+            return true;
+        } else {
+            System.err.println("Nessuna mail con ID "+ID+" in arrivo a "+dest);
+            return false;
         }
     }
 

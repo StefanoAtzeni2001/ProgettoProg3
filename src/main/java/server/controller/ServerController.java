@@ -34,12 +34,8 @@ public class ServerController {
     }
 
     private void startServer(){
-        MemoryManager mem=new MemoryManager();
-        System.out.println("something");
-        ArrayList<String> dest=new ArrayList<>();
-        dest.add("bob@maill.com");
-        dest.add("gbgg1@cc.com");
-        mem.addMail(new Email("bobf", dest, "bobf", "bobf","1"));
+        MemoryManager mem=new MemoryManager(model);
+        
         try{
             socket=new ServerSocket(4242);
         }catch(Exception e){System.out.println("[SERVER] Error opening the socket");}

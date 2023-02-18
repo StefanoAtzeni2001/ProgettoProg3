@@ -10,9 +10,9 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 public class MemoryManager {
-    ServerModel model;
-    String  dirpath= "./src/main/java/server/accounts";
-    ArrayList<String> accounts;
+    private ServerModel model;
+    private String  dirpath= "./src/main/java/server/accounts";
+    private ArrayList<String> accounts;
     public MemoryManager(ServerModel model) {
 
         this.model=model;

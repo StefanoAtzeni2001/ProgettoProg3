@@ -27,11 +27,7 @@ public class MainViewController {
     @FXML
     private AnchorPane rootPane;
 
-    @FXML
-    private ListView<Email> lstEmails;//Observer
-
     private ClientModel model;
-    private Email emptyEmail;
     private Socket socket;
     ObjectInputStream in;
     ObjectOutputStream out;
@@ -50,6 +46,7 @@ public class MainViewController {
         loadListView();
         lblAccount.textProperty().bind(model.accountProperty());
     }
+
     @FXML
     public void loadListView(){
             try {
@@ -60,40 +57,73 @@ public class MainViewController {
                 listController.initModel(model);
                 rootPane.getChildren().setAll(pane);
                 btnBack.setVisible(false);
-            }catch(IOException e){System.out.println("[CLIENT] GUI Error");
-            }
-        }
+            }catch(IOException e){System.out.println("[CLIENT] GUI Error");}
+    }
 
-    public void onBackBtnClick(ActionEvent actionEvent) {
+    @FXML //Create and initialize the writeView, return the stage (not already shown)
+    public Stage loadWriteView() {
+        model.setDest("");
+        model.setSubject("");
+        model.setText("");
+        try {
+            URL writeViewUrl = getClass().getResource("/ClientView/writeView.fxml");
+            FXMLLoader writeLoader = new FXMLLoader(writeViewUrl);
+            Parent par = writeLoader.load();
+            WriteViewController writeController = writeLoader.getController();
+            writeController.initModel(model);
+            Scene scene = new Scene(par, 800, 500);
+            Stage stage = new Stage();
+            stage.setTitle("Write");
+            stage.setScene(scene);
+            return stage;
+        } catch (IOException e) {System.out.println("[CLIENT] GUI Error");return null;}
+    }
+
+    public void onBackBtnClick() {
         loadListView();
     }
 
-    public void onDeleteBtnClick(ActionEvent actionEvent) {
+
+    //delete selected email from the model and reload the listView
+    public void onDeleteBtnClick() {
         if(model.getSelectedEmail()!=null) {
             model.deleteEmail(model.getSelectedEmail());
             loadListView();
         }
     }
 
-    public void onReplyBtnClick(ActionEvent actionEvent) {
+
+    //show the writeView but "dest" and "subject" are already compiled and not editable
+    public void onReplyBtnClick() {
+        if(model.getSelectedEmail()!=null) {
+            Stage stage = loadWriteView();
+            Scene scene = stage.getScene();
+            scene.lookup("#txtTo").setDisable(true);
+            scene.lookup("#txtSubject").setDisable(true);
+            model.setDest(model.getSelectedEmail().getSender());
+            model.setSubject("Re: " + model.getSelectedEmail().getSubject());
+            stage.show();
+        }
     }
 
 
-
-    public void onForwardBtnClick(ActionEvent actionEvent) {
+    //show the writeView but "text" and "subject" are already compiled and not editable
+    public void onForwardBtnClick() {
+        if(model.getSelectedEmail()!=null) {
+            Stage stage = loadWriteView();
+            Scene scene = stage.getScene();
+            scene.lookup("#txtText").setDisable(true);
+            scene.lookup("#txtSubject").setDisable(true);
+            model.setText("[Inoltrato da: " + model.getSelectedEmail().getSender() + "]\n" + model.getSelectedEmail().getText());
+            model.setSubject("Fwd: " + model.getSelectedEmail().getSubject());
+            stage.show();
+        }
     }
 
-    public void onWriteBtnClick() throws IOException {
-        Stage stage=new Stage();
-        URL writeViewUrl = getClass().getResource("/ClientView/writeView.fxml");
-        FXMLLoader writeLoader = new FXMLLoader(writeViewUrl);
-        Parent par=writeLoader.load();
-        WriteViewController writeController = writeLoader.getController();
-        writeController.initModel(model);
-        Scene scene = new Scene(par, 800, 500);
-        stage.setTitle("Write");
-        stage.setScene(scene);
-        stage.show();
+
+    //show the writeView
+    public void onWriteBtnClick()  {
+        loadWriteView().show();
     }
 
 }

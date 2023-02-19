@@ -26,7 +26,7 @@ public class ListViewController {
         this.model = model;
         lstEmails.itemsProperty().bind(model.inboxProperty());
         lstEmails.setOnMouseClicked(this::onListClick);
-        model.selecetedEmailProperty().bind(lstEmails.getSelectionModel().selectedItemProperty());
+        model.selectedEmailProperty().bind(lstEmails.getSelectionModel().selectedItemProperty());
     }
 
     private void onListClick(MouseEvent event) {
@@ -34,7 +34,7 @@ public class ListViewController {
             if (event.getClickCount() == 2) {//DoubleClick
                 onListDoubleClick();
             } else {
-                System.out.println(model.getSelectedEmail());//Click
+                //System.out.println(model.getSelectedEmail());//Click
             }
         }
     }

@@ -1,6 +1,6 @@
 package server.controller;
 
-import Shared.Email;
+import shared.Email;
 import server.model.ObjString;
 import server.model.ServerModel;
 

@@ -1,23 +1,24 @@
 package client.controller;
 
 import client.model.ClientModel;
-import Shared.Email;
-import javafx.event.ActionEvent;
+import client.model.Connection;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import shared.Message;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.net.URL;
+import java.util.List;
+
+import static client.controller.Dialogs.showErrorDialog;
+import static client.controller.Dialogs.showInfoDialog;
 
 public class MainViewController {
     @FXML
@@ -28,22 +29,16 @@ public class MainViewController {
     private AnchorPane rootPane;
 
     private ClientModel model;
-    private Socket socket;
-    ObjectInputStream in;
-    ObjectOutputStream out;
-    
-
-    @FXML
-    public void initialize(){
-    }
+    private boolean running=true;
     @FXML
     public void initModel(ClientModel model) {
         if (this.model != null) {// ensure model is only set once:
             throw new IllegalStateException("[CLIENT] Model can only be initialized once");
         }
         this.model = model;
-        model.generateEmails(50);
         loadListView();
+        getAllEmails();
+        receiveEmails();
         lblAccount.textProperty().bind(model.accountProperty());
     }
 
@@ -84,11 +79,25 @@ public class MainViewController {
     }
 
 
-    //delete selected email from the model and reload the listView
+    //send a "delete message" to server,delete selected email from the model and reload the listView
     public void onDeleteBtnClick() {
         if(model.getSelectedEmail()!=null) {
-            model.deleteEmail(model.getSelectedEmail());
-            loadListView();
+            //send Message to server using a new thread
+            new Thread(() -> {
+                Connection conn=new Connection();
+                Message res = conn.sendMessage(new Message("DEL", List.of(model.getSelectedEmail())));
+                System.out.println(res);
+                if (res.getMsg().equals("OK")) {
+                    Platform.runLater(
+                            () -> {
+                                model.deleteEmail(model.getSelectedEmail());
+                                loadListView();
+                                showInfoDialog("Email correctly deleted!");});
+                } else if (res.getMsg().equals("DWN")) {
+                    Platform.runLater(
+                            () -> showErrorDialog("Server is not responding...\nPlease try later"));
+                }
+            }).start();
         }
     }
 
@@ -126,4 +135,47 @@ public class MainViewController {
         loadWriteView().show();
     }
 
+
+    public void getAllEmails(){
+        new Thread(() -> {
+            Connection conn=new Connection();
+            Message res = conn.sendMessage(new Message("ALL", null));
+            System.out.println(res);
+            if (res.getMsg().equals("OK")) {
+                Platform.runLater(
+                        () -> {
+                            model.addAllEmail(res.getEmails());
+                            loadListView();
+                        });
+            } else if (res.getMsg().equals("DWN")) {
+                Platform.runLater(
+                        () -> showErrorDialog("Server is not responding...\nPlease try later"));
+            }
+        }).start();
+    }
+
+    public void receiveEmails(){
+        new Thread(() -> {
+            while(running) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {System.out.println(e);}
+                Connection conn=new Connection();
+                Message res = conn.sendMessage(new Message("CHK", null));
+                System.out.println("check al server");
+                if (res.getMsg().equals("OK")) {
+                    Platform.runLater(
+                            () -> {
+                                model.addAllEmail(res.getEmails());
+                                loadListView();
+                                showInfoDialog("You received new emails ","check your inbox!");
+                            });
+                } else if (res.getMsg().equals("DWN")) {
+                    Platform.runLater(
+                            () -> showErrorDialog("OPS... connection lost :(", "Server is not responding...\nPlease try later"));
+                }
+
+            }
+        }).start();
+    }
 }

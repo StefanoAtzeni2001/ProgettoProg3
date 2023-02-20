@@ -1,11 +1,10 @@
 package client.model;
 
-import Shared.Email;
+import shared.Email;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import javax.security.auth.Subject;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,8 +55,18 @@ public class ClientModel {
 
 
 
-    public void deleteEmail(Email email) {
+    public synchronized void deleteEmail(Email email) {
         inboxContent.remove(email);
+    }
+
+    public synchronized void addEmail(Email email){
+        inboxContent.add(email);
+    }
+
+    public synchronized void addAllEmail(List<Email> emails){
+        for (Email email:  emails){
+            inboxContent.add(email);
+        }
     }
 
 

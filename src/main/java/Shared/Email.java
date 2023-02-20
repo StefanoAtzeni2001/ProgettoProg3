@@ -46,7 +46,7 @@ public class Email implements Serializable {
 
     @Override
     public String toString() {
-        return  "[Da: " +sender + "]    "  + subject + " - " +   (text.length()>70 ? text.substring(0,40)+ "...": text);
+        return  "[Da: " +sender + "]    "  + subject + " - " +   (text.length()>70 ? text.substring(0,50)+ "...": text);
     }
 
 

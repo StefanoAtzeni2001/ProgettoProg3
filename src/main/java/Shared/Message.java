@@ -1,7 +1,5 @@
 package Shared;
 
-import Shared.Email;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -16,6 +14,10 @@ public class Message implements Serializable {
 
     public String getMsg() {
         return msg;
+    }
+
+    public List<Email> getEmails() {
+        return emails;
     }
 
     @Override

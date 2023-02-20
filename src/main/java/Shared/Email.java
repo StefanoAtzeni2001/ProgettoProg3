@@ -41,12 +41,14 @@ public class Email implements Serializable {
 
     public Integer getID() {return id;}
 
+    public LocalDateTime getDate() {return date;}
+
 
     @Override
     public String toString() {
         return  "[Da: " +sender + "]    "  + subject + " - " +   (text.length()>70 ? text.substring(0,40)+ "...": text);
     }
 
-    public LocalDateTime getDate() {return date;}
+
 
 }

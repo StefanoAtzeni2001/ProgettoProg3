@@ -1,16 +1,14 @@
 package server.controller;
 
+import Shared.Message;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
-import  Shared.Email;
-import  Shared.Message;
 import server.model.ServerModel;
 
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -34,13 +32,15 @@ public class ServerController {
         startServer();
     }
 
-    private void startServer(){
-        MemoryManager mem=new MemoryManager(model);
+    private void startServer() {
+        MemoryManager mem = new MemoryManager(model);
 
-        try{
-            socket=new ServerSocket(4242);
-        }catch(Exception e){System.out.println("[SERVER] Error opening the socket");}
-        threadPool= Executors.newFixedThreadPool(THREAD_NUMBER);
+        try {
+            socket = new ServerSocket(4242);
+        } catch (Exception e) {
+            System.out.println("[SERVER] Error opening the socket");
+        }
+        threadPool = Executors.newFixedThreadPool(THREAD_NUMBER);
         //il thread main si occupa della gui
         new Thread(()->{//thread che rimane in loop in ascolto sul socket
             while(running){
@@ -52,6 +52,10 @@ public class ServerController {
                             Message msg = (Message) in.readObject();
                             System.out.print(msg);
                             model.setLog(model.getLog() + msg+"\n" );
+
+                            OperationThread op=new OperationThread(msg,mem,new ObjectOutputStream(req.getOutputStream()));
+                            threadPool.execute(op);
+
                         }catch(Exception e ){System.out.println("[SERVER] Connection Error, Could not read from client");
                         e.printStackTrace();}
                     });
@@ -62,6 +66,8 @@ public class ServerController {
     }
 
 
-    private void closeServer(){}
+    private void closeServer(){
+        running=false;
+    }
 
 }

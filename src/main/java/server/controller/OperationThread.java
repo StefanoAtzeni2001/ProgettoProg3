@@ -24,20 +24,22 @@ public class OperationThread implements Runnable{
         try {
             switch (msg.getMsg()) {
                 case "SND" -> {
-                    List<Email> mails = new ArrayList<>();
-                    List<String> strings;
-                    Email m;
 
-                    m = msg.getEmails().get(0);
-                    strings = mem.addMail(m);
+                        List<Email> mails = new ArrayList<>();
+                        List<String> strings;
+                        Email m;
 
-                    if (strings != null) {
-                        mails.add(new Email(m.getID(), m.getSender(), strings, m.getSubject(), m.getText(), m.getDate()));
-                        out.writeObject(new Message("ERR", mails));
+                        m = msg.getEmails().get(0);
+                        strings = mem.addMail(m);
 
-                    } else {
-                        out.writeObject(new Message("OK", null));
-                    }
+                        if (strings != null) {
+                            mails.add(new Email(m.getID(), m.getSender(), strings, m.getSubject(), m.getText(), m.getDate()));
+                            out.writeObject(new Message("ERR", mails));
+
+                        } else {
+                            out.writeObject(new Message("OK", null));
+                        }
+
                 }
                 case "DEL" -> {
                     boolean b = mem.delete_Email(msg.getEmails().get(0));
@@ -49,21 +51,25 @@ public class OperationThread implements Runnable{
                     out.writeObject(risp);
                 }
                 case "ALL" -> {
-                    String dest = msg.getEmails().get(0).getSender();
-                    out.writeObject(new Message("OK", mem.getMails(true, dest)));
+                    synchronized (mem.findAccount(msg.getEmails().get(0).getSender())) {
+                        String dest = msg.getEmails().get(0).getSender();
+                        out.writeObject(new Message("OK", mem.getMails(true, dest)));
+                    }
                 }
                 case "CHK" -> {
-                    String dest = msg.getEmails().get(0).getSender();
-                    out.writeObject(new Message("OK", mem.getMails(false, dest)));
+                    synchronized (mem.findAccount(msg.getEmails().get(0).getSender())) {
+                        String dest = msg.getEmails().get(0).getSender();
+                        out.writeObject(new Message("OK", mem.getMails(false, dest)));
+                    }
                 }
                 case "CMT" -> {
-                    List<String> IDs=msg.getEmails().get(0).getReceivers();
-                    String target=msg.getEmails().get(0).getSender();
-                    for(String i: IDs)
-                    {
-                        mem.move_email(i,target);
+                    synchronized (mem.findAccount(msg.getEmails().get(0).getSender())) {
+                        List<String> IDs = msg.getEmails().get(0).getReceivers();
+                        String target = msg.getEmails().get(0).getSender();
+                        for (String i : IDs) {
+                            mem.move_email(i, target);
+                        }
                     }
-
                 }
             }
         }catch (IOException | ClassNotFoundException e) {

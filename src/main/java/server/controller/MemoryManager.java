@@ -27,6 +27,9 @@ public class MemoryManager {
         accounts = getAccounts(dir);
         System.out.println(accounts);
     }
+    public ObjString findAccount(String dest){
+        return accounts.get(accounts.indexOf(new ObjString(dest)));
+    }
 
     public List<String> addMail(Email mail){
         List<String> dests=mail.getReceivers();
@@ -62,14 +65,16 @@ public class MemoryManager {
         ObjectOutputStream out;
         System.out.println("sono qua");
         for (String dest:mail.getReceivers()) {
-            path= dest +"/InArrivo/"+mail.getID();
-            receiver = new File(dirpath+"/"+path);
-            try {
-                out=new ObjectOutputStream(new FileOutputStream(receiver)) ;
-                out.writeObject(mail);
-                model.setLog(model.getLog() + "Email inviata da "+mail.getSender()+" a "+dest+"\n" );
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            synchronized (this.findAccount(dest)) {
+                path= dest +"/InArrivo/"+mail.getID();
+                receiver = new File(dirpath+"/"+path);
+                try {
+                    out=new ObjectOutputStream(new FileOutputStream(receiver)) ;
+                    out.writeObject(mail);
+                    model.setLog(model.getLog() + "Email inviata da "+mail.getSender()+" a "+dest+"\n" );
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 

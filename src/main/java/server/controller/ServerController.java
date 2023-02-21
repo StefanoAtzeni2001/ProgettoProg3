@@ -56,16 +56,16 @@ public class ServerController {
                     threadPool.execute(()->{ //quando arriva una richiesta viene assegnato il task a un thread della threadpool
                         try {
                             ObjectInputStream in = new ObjectInputStream(req.getInputStream());
-                            ObjectOutputStream out= new ObjectOutputStream(req.getOutputStream());
+                           // ObjectOutputStream out= new ObjectOutputStream(req.getOutputStream());
 
                             Message msg = (Message) in.readObject();
                             System.out.println(msg);
                             model.setLog(model.getLog() + msg+"\n" );
 
-                           // OperationThread op=new OperationThread(msg,mem,new ObjectOutputStream(req.getOutputStream()));
-                            //threadPool.execute(op);
+                            OperationThread op=new OperationThread(msg,mem,new ObjectOutputStream(req.getOutputStream()));
+                            threadPool.execute(op);
 
-                            // prova per vedere se funzionava il client
+                            /* prova per vedere se funzionava il client
                             switch(msg.getMsg()) {
                                 case "ALL": {
                                     out.writeObject(new Message("OK", generateEmails(10)));
@@ -79,7 +79,7 @@ public class ServerController {
                                     out.writeObject(new Message("OK", null));
                                 }
                             }
-
+*/
                         }catch(Exception e ){System.out.println("[SERVER] Connection Error, Could not read from client");
                         e.printStackTrace();}
                     });

@@ -41,6 +41,8 @@ public class Email implements Serializable {
 
     public Integer getID() {return id;}
 
+    public void setID(Integer x) {this.id=x;}
+
     public LocalDateTime getDate() {return date;}
 
 

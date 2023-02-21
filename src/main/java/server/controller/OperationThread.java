@@ -21,48 +21,53 @@ public class OperationThread implements Runnable{
     }
     @Override
     public void run() {
-        List<Email>  mails = new ArrayList<>();
-        switch (msg.getMsg()) {
-            case "SND" -> {
-                List<String> strings;
-                Email m;
-                try {
+        try {
+            switch (msg.getMsg()) {
+                case "SND" -> {
+                    List<Email> mails = new ArrayList<>();
+                    List<String> strings;
+                    Email m;
+
                     m = msg.getEmails().get(0);
                     strings = mem.addMail(m);
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    System.err.println("Errore nella lista di mail nel messaggio");
-                    return;
-                }
-                if (strings != null) {
-                    mails.add(new Email(m.getID(), m.getSender(), strings, m.getSubject(), m.getText(), m.getDate()));
-                    try {
+
+                    if (strings != null) {
+                        mails.add(new Email(m.getID(), m.getSender(), strings, m.getSubject(), m.getText(), m.getDate()));
                         out.writeObject(new Message("ERR", mails));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                } else {
-                    try {
+
+                    } else {
                         out.writeObject(new Message("OK", null));
-                    } catch (IOException e) {
-                        System.err.println("Interruzione output");
                     }
                 }
-            }
-            case "DEL" -> {
-                boolean b = mem.delete_Email(msg.getEmails().get(0));
-                Message risp;
-                if (b)
-                    risp = new Message("OK", null);
-                else
-                    risp = new Message("ERR", null);
-                try {
+                case "DEL" -> {
+                    boolean b = mem.delete_Email(msg.getEmails().get(0));
+                    Message risp;
+                    if (b)
+                        risp = new Message("OK", null);
+                    else
+                        risp = new Message("ERR", null);
                     out.writeObject(risp);
-                } catch (IOException e) {
-                    System.err.println("Interruzione output");
+                }
+                case "ALL" -> {
+                    String dest = msg.getEmails().get(0).getSender();
+                    out.writeObject(new Message("OK", mem.getMails(true, dest)));
+                }
+                case "CHK" -> {
+                    String dest = msg.getEmails().get(0).getSender();
+                    out.writeObject(new Message("OK", mem.getMails(false, dest)));
+                }
+                case "CMT" -> {
+                    List<String> IDs=msg.getEmails().get(0).getReceivers();
+                    String target=msg.getEmails().get(0).getSender();
+                    for(String i: IDs)
+                    {
+                        mem.move_email(i,target);
+                    }
+
                 }
             }
-            case "ALL" -> {}
-            case "CHK" -> {}
+        }catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
     }

@@ -1,5 +1,6 @@
 package server.controller;
 
+import server.model.IdSequence;
 import shared.Email;
 import server.model.ObjString;
 import server.model.ServerModel;
@@ -11,7 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 public class MemoryManager {
-    private  IdSequence ID_Gen=new IdSequence();
+    private IdSequence ID_Seq;
     private ServerModel model;
     private String  dirpath= "./src/main/java/server/accounts";
     private ArrayList<ObjString> accounts;
@@ -22,7 +23,7 @@ public class MemoryManager {
         File dir = new File(dirpath);
         if (!dir.isDirectory())
             dir.mkdir();
-
+        ID_Seq=new IdSequence(dirpath);
         accounts = getAccounts(dir);
         System.out.println(accounts);
     }
@@ -49,6 +50,7 @@ public class MemoryManager {
         }
         if(err.isEmpty()) {
             System.out.println("sto Inviando");
+            mail.setID(ID_Seq.getNextID()); //autoboxing
             save(mail);
             return null;}
         else return err;
@@ -70,6 +72,7 @@ public class MemoryManager {
                 throw new RuntimeException(e);
             }
         }
+
     }
 
     private ArrayList<ObjString> getAccounts(File dir) {
@@ -138,57 +141,35 @@ public class MemoryManager {
         }
     }
 
-    public void close(){
+    public ArrayList<Email> getMails(boolean bool,String dest) throws IOException, ClassNotFoundException {
 
+        ArrayList<Email> out=new ArrayList<>();
+        String path = dirpath+"/"+ dest + "/InArrivo";
+        readMailFromFile(path,out);
+        if(bool) {
+            path = dirpath + "/" + dest + "/Ricevute";
+            readMailFromFile(path, out);
+        }
+        return out;
     }
 
-    class IdSequence {
-        int i;
-       DataInputStream in;
-       DataOutputStream out;
-        public IdSequence()
+    private void readMailFromFile(String path,ArrayList<Email> out) throws IOException, ClassNotFoundException {
+        ObjectInputStream reader=null;
+        File dir=new File(path);
+        File[] daInviare=dir.listFiles();
+        for(File i:daInviare)
         {
-            String path = dirpath+"/indice";
-            try
-            {
-                FileInputStream inS = new FileInputStream(path);
-                this.in=new DataInputStream(inS);
-                FileOutputStream outS=new FileOutputStream(path);
-                this.out=new DataOutputStream(outS);
-                i= in.readInt();
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            reader=new ObjectInputStream(new FileInputStream(i));
+            out.add((Email) reader.readObject());
         }
-
-        public synchronized int getNextID(){
-            try {
-                i++;
-                out.writeInt(i);
-                out.flush();
-                return i-1;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public void close(){
-            try {
-                if (in!=null)
-                in.close();
-                if (out!=null)
-                out.close();
-            } catch (IOException e) {
-                try {
-                    out.close();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-
-        }
-
-
+        if (reader!=null)
+            reader.close();
     }
+
+
+    public void close(){
+        ID_Seq.close();
+    }
+
+
 }

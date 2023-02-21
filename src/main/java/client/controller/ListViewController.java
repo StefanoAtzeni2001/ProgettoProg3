@@ -1,7 +1,7 @@
 package client.controller;
 
 import client.model.ClientModel;
-import Shared.Email;
+import shared.Email;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;

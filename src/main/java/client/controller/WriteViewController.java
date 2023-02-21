@@ -1,24 +1,21 @@
 package client.controller;
 
 import client.model.ClientModel;
-import Shared.Email;
-import Shared.Message;
+import client.model.Connection;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
+import javafx.stage.Stage;
+import shared.Email;
+import shared.Message;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+
+import static client.controller.Dialogs.*;
 
 public class WriteViewController {
 
@@ -27,11 +24,6 @@ public class WriteViewController {
     public TextArea txtText;
     public VBox mainBox;
     private List<String> destList;
-
-
-    private Socket socket;
-    ObjectInputStream in;
-    ObjectOutputStream out;
 
     private ClientModel model;
 
@@ -45,21 +37,6 @@ public class WriteViewController {
         destList=new ArrayList<>();
     }
 
-    protected void getSocket()  {
-        try {
-            socket = new Socket(InetAddress.getLocalHost(), 4242);
-            out = new ObjectOutputStream(socket.getOutputStream());
-        }catch(IOException e){System.out.println("[CLIENT] Connection Error, Could not connect to Server");}
-    }
-    protected void closeConnection() {
-        try {
-            if (socket != null){socket.close();}
-            if (in != null){in.close();}
-            if (out != null){out.close();}
-        } catch (IOException e) {
-            System.out.println("[CLIENT] Connection Error, Could not properly close Connection");
-        }
-    }
 
     //NOTA: non controlla tutte le mail invalide tipo( ciao@@@a12! .a è valida)
     // ci sono delle classi apposta per validare le mail con le espressioni regolari (da vedere poi)
@@ -82,62 +59,47 @@ public class WriteViewController {
             }catch (NoSuchElementException e){ correct=false;}
             if (!correct) err.add(dest);
         }
-        if(err.isEmpty()) {;
+        if(err.isEmpty()) {
             return null;}
         else return err;}
 
-    //checks input fields, create the Email Object, wrap it into a Message Object and call sendMessage()
+    //checks input fields, create Message object and send it to server
     public void onSendBtnClick() {
-       // System.out.println(txtTo.getText()+" - "+txtSubject.textProperty()+" - "+txtText.textProperty());
+        //checks input fields
         if (txtTo.getText().equals("") || txtSubject.getText().equals("") || txtText.getText().equals("")) {
-            showErrorDialog("Compile all camps!");
+            showWarningDialog("Compile all camps!");
         } else {
             destList = List.of(model.getDest().split(";"));
             List<String> err = checkEmails(destList);
-            if (err == null) {
+            if (err != null) {
+                showWarningDialog("invalid emails: " + err);
+            }else {
+                //create Message
                 Email email = new Email(0, model.getAccount(), destList, model.getSubject(), model.getText(), LocalDateTime.now());
-                Message msg = new Message("invio", List.of(email));
-                sendMessage(msg);
-            } else {
-                showErrorDialog("invalid emails: " + err.toString());
+                Message msg = new Message("SND", List.of(email));
+                //send Message to server using a new thread
+                new Thread(() -> {
+                    Connection conn=new Connection();
+                    Message res = conn.sendMessage(msg);
+                    if (res.getMsg().equals("OK")) {
+                        Platform.runLater(//Other Thread can't modify GUI
+                                () -> {
+                                    showInfoDialog("Email correctly delivered!");
+                                    Stage stage = (Stage)mainBox.getScene().getWindow();
+                                    stage.close();
+                                 });
+                    } else if (res.getMsg().equals("DWN")) {
+                        Platform.runLater(
+                                () -> showErrorDialog("Server is not responding...\nPlease try later"));
+                    }
+                }).start();
             }
         }
     }
-    public void sendMessage(Message msg) {;
-        new Thread(()->{
-            try{
-                getSocket();
-                System.out.println(msg);
-                out.writeObject(msg);
-                out.flush();
-                closeConnection();
-                Platform.runLater(//Other Thread can't modify GUI
-                        ()->showInfoDialog("Email correctly delivered!"));
-            }catch(Exception e) {
-                Platform.runLater(//Other Thread can't modify GUI
-                        ()->showErrorDialog("Error connecting to Server..."));
-                System.out.println("[CLIENT] Conncection Error, Could not send obj");
-                e.printStackTrace();
-            }
-        }).start();
 
-    }
 
-    public void showInfoDialog(String msg){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information Dialog");
-        alert.setContentText(msg);
-        alert.setHeaderText("Operation Completed");
-        alert.showAndWait();
-        Stage stage=(Stage)mainBox.getScene().getWindow();
-        stage.close();
-    }
 
-    public void showErrorDialog(String msg){
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error Dialog");
-        alert.setHeaderText("Operation failed :(");
-        alert.setContentText(msg);
-        alert.showAndWait();
-    }
+
 }
+
+

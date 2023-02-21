@@ -1,7 +1,7 @@
 package server.controller;
 
-import Shared.Email;
-import Shared.Message;
+import shared.Email;
+import shared.Message;
 
 
 import java.io.IOException;

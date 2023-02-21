@@ -1,14 +1,21 @@
 package server.controller;
 
-import Shared.Message;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
+import shared.Email;
+import shared.Message;
 import server.model.ServerModel;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -49,12 +56,29 @@ public class ServerController {
                     threadPool.execute(()->{ //quando arriva una richiesta viene assegnato il task a un thread della threadpool
                         try {
                             ObjectInputStream in = new ObjectInputStream(req.getInputStream());
+                            ObjectOutputStream out= new ObjectOutputStream(req.getOutputStream());
+
                             Message msg = (Message) in.readObject();
-                            System.out.print(msg);
+                            System.out.println(msg);
                             model.setLog(model.getLog() + msg+"\n" );
 
-                            OperationThread op=new OperationThread(msg,mem,new ObjectOutputStream(req.getOutputStream()));
-                            threadPool.execute(op);
+                           // OperationThread op=new OperationThread(msg,mem,new ObjectOutputStream(req.getOutputStream()));
+                            //threadPool.execute(op);
+
+                            // prova per vedere se funzionava il client
+                            switch(msg.getMsg()) {
+                                case "ALL": {
+                                    out.writeObject(new Message("OK", generateEmails(10)));
+                                    break;
+                                }
+                                case "CHK": {
+                                    out.writeObject(new Message("OK", generateEmails(2)));
+                                    break;
+                                }
+                                default: {
+                                    out.writeObject(new Message("OK", null));
+                                }
+                            }
 
                         }catch(Exception e ){System.out.println("[SERVER] Connection Error, Could not read from client");
                         e.printStackTrace();}
@@ -68,6 +92,33 @@ public class ServerController {
 
     private void closeServer(){
         running=false;
+    }
+
+
+    public List<Email> generateEmails(int n){
+        List<Email> list=new ArrayList<>();
+        String[] people = new String[] {"paolo.verdi@gmail.com", "Alessandro.rossi@gmail.com", "Enrico.bianchi@gmail.com", "Giulia.neri@edu.unito.it", "Gaia.deLuigi@libero.it", "Simone.viola@unito.it"};
+        String[] subjects = new String[] {
+                "Importante", "A proposito della nostra ultima conversazione", "Tanto va la gatta al lardo",
+                "Non dimenticare...", "Domani scuola" };
+        String[] texts = new String[] {
+                "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+                "Ricordati di comprare il latte tornando a casa",
+                "L'appuntamento è per domani alle 9, ci vediamo al solito posto",
+                "Ho sempre pensato valesse 42, tu sai di cosa parlo"
+        };
+        Random r = new Random();
+        for (int i=0; i<n; i++) {
+            Email email = new Email(
+                    i,
+                    people[r.nextInt(people.length)],
+                    List.of(people[r.nextInt(people.length)],people[r.nextInt(people.length)],people[r.nextInt(people.length)]),
+                    subjects[r.nextInt(subjects.length)],
+                    texts[r.nextInt(texts.length)],
+                    LocalDateTime.now());
+            list.add(email);
+        }
+        return list;
     }
 
 }

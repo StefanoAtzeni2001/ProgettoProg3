@@ -23,7 +23,7 @@ public class OperationThread implements Runnable{
     public void run() {
         List<Email>  mails = new ArrayList<>();
         switch (msg.getMsg()) {
-            case "reply", "send", "forward" -> {
+            case "SND" -> {
                 List<String> strings;
                 Email m;
                 try {
@@ -36,31 +36,33 @@ public class OperationThread implements Runnable{
                 if (strings != null) {
                     mails.add(new Email(m.getID(), m.getSender(), strings, m.getSubject(), m.getText(), m.getDate()));
                     try {
-                        out.writeObject(new Message("ERRORE", mails));
+                        out.writeObject(new Message("ERR", mails));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 } else {
                     try {
-                        out.writeObject(new Message("OK", msg.getEmails()));
+                        out.writeObject(new Message("OK", null));
                     } catch (IOException e) {
                         System.err.println("Interruzione output");
                     }
                 }
             }
-            case "delete" -> {
+            case "DEL" -> {
                 boolean b = mem.delete_Email(msg.getEmails().get(0));
                 Message risp;
                 if (b)
                     risp = new Message("OK", null);
                 else
-                    risp = new Message("ERROR", null);
+                    risp = new Message("ERR", null);
                 try {
                     out.writeObject(risp);
                 } catch (IOException e) {
                     System.err.println("Interruzione output");
                 }
             }
+            case "ALL" -> {}
+            case "CHK" -> {}
         }
 
     }

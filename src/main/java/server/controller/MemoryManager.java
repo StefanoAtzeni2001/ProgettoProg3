@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 public class MemoryManager {
+    private  IdSequence ID_Gen=new IdSequence();
     private ServerModel model;
     private String  dirpath= "./src/main/java/server/accounts";
     private ArrayList<ObjString> accounts;
@@ -135,5 +136,59 @@ public class MemoryManager {
             System.err.println("Nessuna mail con ID "+ID+" in arrivo a "+dest);
             return false;
         }
+    }
+
+    public void close(){
+
+    }
+
+    class IdSequence {
+        int i;
+       DataInputStream in;
+       DataOutputStream out;
+        public IdSequence()
+        {
+            String path = dirpath+"/indice";
+            try
+            {
+                FileInputStream inS = new FileInputStream(path);
+                this.in=new DataInputStream(inS);
+                FileOutputStream outS=new FileOutputStream(path);
+                this.out=new DataOutputStream(outS);
+                i= in.readInt();
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public synchronized int getNextID(){
+            try {
+                i++;
+                out.writeInt(i);
+                out.flush();
+                return i-1;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public void close(){
+            try {
+                if (in!=null)
+                in.close();
+                if (out!=null)
+                out.close();
+            } catch (IOException e) {
+                try {
+                    out.close();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+
+        }
+
+
     }
 }

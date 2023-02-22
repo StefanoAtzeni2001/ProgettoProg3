@@ -1,6 +1,7 @@
 package client.controller;
 
 import client.model.ClientModel;
+import javafx.scene.layout.Region;
 import shared.Email;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,11 +11,11 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-
 import java.io.IOException;
 import java.net.URL;
 
 public class ListViewController {
+    @FXML
     public AnchorPane listPane;
     @FXML
     private ListView<Email> lstEmails;//Observer
@@ -50,6 +51,7 @@ public class ListViewController {
 
             Scene scene=listPane.getScene() ; //get reference to main scene
             ((Pane) scene.lookup("#rootPane")).getChildren().setAll(pane);//switching pane
+
             scene.lookup("#btnBack").setVisible(true);
         } catch (IOException e) {
             System.out.println("[CLIENT] GUI Error");

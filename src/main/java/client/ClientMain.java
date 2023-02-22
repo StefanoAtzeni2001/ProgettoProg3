@@ -25,7 +25,7 @@ public class ClientMain extends Application {
             FXMLLoader mainLoader = new FXMLLoader(mainViewUrl);
             Parent par=mainLoader.load();
             MainViewController mainController = mainLoader.getController();
-            mainController.initModel(model);
+            mainController.initModel(model,stage);
 
 
             Scene scene = new Scene(par, 800, 500);

@@ -72,7 +72,8 @@ public class ServerController {
                                     break;
                                 }
                                 case "CHK": {
-                                    out.writeObject(new Message("OK", generateEmails(2)));
+                                    Random rnd =new Random();
+                                    out.writeObject(new Message("OK", generateEmails(rnd.nextInt(0,3))));
                                     break;
                                 }
                                 default: {
@@ -80,8 +81,7 @@ public class ServerController {
                                 }
                             }
 */
-                        }catch(Exception e ){System.out.println("[SERVER] Connection Error, Could not read from client");
-                        e.printStackTrace();}
+                        }catch(Exception e ){System.out.println("[SERVER] Connection Error, Could not read from client");}
                     });
                 }catch(Exception e){System.out.println("[SERVER] Connection Error, Socket close");}
 
@@ -96,6 +96,7 @@ public class ServerController {
 
 
     public List<Email> generateEmails(int n){
+        if (n==0) return null;
         List<Email> list=new ArrayList<>();
         String[] people = new String[] {"paolo.verdi@gmail.com", "Alessandro.rossi@gmail.com", "Enrico.bianchi@gmail.com", "Giulia.neri@edu.unito.it", "Gaia.deLuigi@libero.it", "Simone.viola@unito.it"};
         String[] subjects = new String[] {

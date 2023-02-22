@@ -2,6 +2,9 @@ package client.controller;
 
 import client.model.ClientModel;
 import client.model.Connection;
+import shared.Message;
+import static client.controller.Dialogs.showErrorDialog;
+import static client.controller.Dialogs.showInfoDialog;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,14 +14,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import shared.Message;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-import static client.controller.Dialogs.showErrorDialog;
-import static client.controller.Dialogs.showInfoDialog;
 
 public class MainViewController {
     @FXML
@@ -29,18 +28,26 @@ public class MainViewController {
     private AnchorPane rootPane;
 
     private ClientModel model;
+    private Stage stage;
     private boolean running=true;
     @FXML
-    public void initModel(ClientModel model) {
+    public void initModel(ClientModel model,Stage stage) {
         if (this.model != null) {// ensure model is only set once:
             throw new IllegalStateException("[CLIENT] Model can only be initialized once");
         }
         this.model = model;
+        this.stage=stage;
         loadListView();
         getAllEmails();
         receiveEmails();
+
         lblAccount.textProperty().bind(model.accountProperty());
+        stage.setOnCloseRequest(event -> running=false);
+
     }
+
+
+
 
     @FXML
     public void loadListView(){
@@ -91,8 +98,8 @@ public class MainViewController {
                     Platform.runLater(
                             () -> {
                                 model.deleteEmail(model.getSelectedEmail());
-                                loadListView();
-                                showInfoDialog("Email correctly deleted!");});
+                                showInfoDialog("Email correctly deleted!");
+                                loadListView();});
                 } else if (res.getMsg().equals("DWN")) {
                     Platform.runLater(
                             () -> showErrorDialog("Server is not responding...\nPlease try later"));
@@ -156,21 +163,24 @@ public class MainViewController {
 
     public void receiveEmails(){
         new Thread(() -> {
+            int sleepTime=3000;
             while(running) {
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(sleepTime);
                 } catch (InterruptedException e) {System.out.println(e);}
                 Connection conn=new Connection();
                 Message res = conn.sendMessage(new Message("CHK", null));
                 System.out.println("check al server");
-                if (res.getMsg().equals("OK")) {
+                if (res.getMsg().equals("OK")&& res.getEmails()!=null) {
                     Platform.runLater(
                             () -> {
                                 model.addAllEmail(res.getEmails());
-                                loadListView();
+                                Scene scene =stage.getScene();
+                                if( scene.lookup("#listPane")!=null) loadListView();
                                 showInfoDialog("You received new emails ","check your inbox!");
                             });
                 } else if (res.getMsg().equals("DWN")) {
+                    sleepTime=15000;
                     Platform.runLater(
                             () -> showErrorDialog("OPS... connection lost :(", "Server is not responding...\nPlease try later"));
                 }

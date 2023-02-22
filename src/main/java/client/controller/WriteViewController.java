@@ -40,44 +40,17 @@ public class WriteViewController {
     }
 
 
-    //NOTA: non controlla tutte le mail invalide tipo( ciao@@@a12! .a è valida)
-    // ci sono delle classi apposta per validare le mail con le espressioni regolari (da vedere poi)
-    private List<String> checkEmails(List<String> dests){
-        List<String> err=new ArrayList<>();
-        boolean correct;
-        StringTokenizer st;
-        String a;
-        for (String dest:dests) {
-            correct=true;
-            st= new StringTokenizer(dest);
-            try {
-                a=st.nextToken("@");
-                if (a.length()==0) correct=false;
-                a=st.nextToken(".");
-                if (a.length()==0) correct=false;
-                a=st.nextToken();
-                if (a.length()==0) correct=false;
-
-            }catch (NoSuchElementException e){ correct=false;}
-            if (!correct) err.add(dest);
-        }
-        if(err.isEmpty()) {
-            return null;}
-        else return err;}
 
     //checks input fields, create Message object and send it to server
     public void onSendBtnClick() {
         //checks input fields
         if (txtTo.getText().equals("") || txtSubject.getText().equals("") || txtText.getText().equals("")) {
             showWarningDialog("Compile all camps!");
-        } else {
-            if (isWrong(txtTo.getText()))
-                showWarningDialog("Email non valida : deve contenere @ e non può contenere caratteri speciali");
-            else {
-                destList = List.of(model.getDest().split(";"));
+        }else {
+                destList = List.of(model.getDest().replaceAll("\\s", "").split(";"));
                 List<String> err = checkEmails(destList);
                 if (err != null) {
-                    showWarningDialog("invalid emails: " + err);
+                    showWarningDialog("invalid emails: " +err,"Email non valida : deve contenere @ e non può contenere caratteri speciali");
                 } else {
                     //create Message
                     Email email = new Email(0, model.getAccount(), destList, model.getSubject(), model.getText(), LocalDateTime.now());
@@ -93,6 +66,9 @@ public class WriteViewController {
                                         Stage stage = (Stage) mainBox.getScene().getWindow();
                                         stage.close();
                                     });
+                        }else if (res.getMsg().equals("ERR")) {
+                            Platform.runLater(
+                                    () -> showErrorDialog("Email not found: "+res.getEmails().get(0).getReceivers()));
                         } else if (res.getMsg().equals("DWN")) {
                             Platform.runLater(
                                     () -> showErrorDialog("Server is not responding...\nPlease try later"));
@@ -101,7 +77,6 @@ public class WriteViewController {
                 }
             }
         }
-    }
 
     private boolean isWrong(String text) {
         StringTokenizer st= new StringTokenizer(text);
@@ -110,7 +85,16 @@ public class WriteViewController {
         Matcher matcher = pattern.matcher(text);
         return !matcher.matches();
     }
-
+    private List<String> checkEmails(List<String> dests){
+        List<String> err=new ArrayList<>();
+        for (String dest:dests) {
+            if(isWrong(dest))
+                err.add(dest);
+        }
+        if(err.isEmpty()) {
+            return null;}
+        else return err;
+    }
 
 }
 

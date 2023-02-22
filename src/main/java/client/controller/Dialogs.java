@@ -27,7 +27,7 @@ public class Dialogs {
     }
 
     public static void showErrorDialog(String msg){
-        showErrorDialog(msg,"Operation failed :(");
+        showErrorDialog("Operation failed :(",msg);
     }
     public static void showInfoDialog(String msg){
         showInfoDialog("Operation Completed :)",msg);

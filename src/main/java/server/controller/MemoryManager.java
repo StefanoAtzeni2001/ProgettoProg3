@@ -32,22 +32,8 @@ public class MemoryManager {
     public List<String> addMail(Email mail){
         List<String> dests=mail.getReceivers();
         List<String> err=new ArrayList<>();
-        boolean corretto=true;
-        StringTokenizer st;
-        String a;
         for (String dest:dests) {
-            corretto=true;
-            st= new StringTokenizer(dest);
-            try {
-                a=st.nextToken("@");
-                if (a.length()==0) corretto=false;
-                a=st.nextToken(".");
-                if (a.length()==0) corretto=false;
-                a=st.nextToken();
-                if (a.length()==0) corretto=false;
-
-            }catch (NoSuchElementException e){ corretto=false;}
-           if (!corretto||!accounts.contains(new ObjString(dest) )) err.add(dest);
+           if (!accounts.contains(new ObjString(dest) )) err.add(dest);
         }
         if(err.isEmpty()) {
             System.out.println("sto Inviando");

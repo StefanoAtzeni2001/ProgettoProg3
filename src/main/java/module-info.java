@@ -1,6 +1,7 @@
 module org.progettoprog3 {
     requires javafx.controls;
     requires javafx.fxml;
+    requires com.google.gson;
 
 
     opens client to javafx.fxml;

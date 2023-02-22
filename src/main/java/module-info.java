@@ -3,6 +3,8 @@ module org.progettoprog3 {
     requires javafx.fxml;
     requires com.google.gson;
 
+    opens shared to com.google.gson;
+
 
     opens client to javafx.fxml;
     exports client;

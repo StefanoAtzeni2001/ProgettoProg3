@@ -35,7 +35,6 @@ public class IdSequence {
             }
             System.out.println(i);
             reader.close();
-            getNextID();
         } catch (IOException e) {
             System.out.println("File not found: " + e.getMessage());
         }

@@ -13,7 +13,7 @@ public class Email implements Serializable {
     private String subject;
     private String text;
 
-    private LocalDateTime date;
+    private String date;
 
 
     public Email(Integer id,String sender, List<String> receivers, String subject, String text,LocalDateTime date) {
@@ -22,7 +22,7 @@ public class Email implements Serializable {
         this.receivers = new ArrayList<>(receivers);
         this.subject = subject;
         this.text = text;
-        this.date=date;
+        this.date=date.toString();
     }
 
     public String getSender() {
@@ -43,7 +43,7 @@ public class Email implements Serializable {
 
     public void setID(Integer x) {this.id=x;}
 
-    public LocalDateTime getDate() {return date;}
+    public String getDate() {return date;}
 
 
     @Override

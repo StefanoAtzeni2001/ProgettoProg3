@@ -1,15 +1,13 @@
 package server.controller;
 
+import com.google.gson.Gson;
 import server.model.IdSequence;
 import shared.Email;
 import server.model.ObjString;
 import server.model.ServerModel;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class MemoryManager {
     private IdSequence ID_Seq;
@@ -60,17 +58,23 @@ public class MemoryManager {
     }
 
     private void save(Email mail) {
+        Gson gson=new Gson();
         String path;
         File receiver;
-        ObjectOutputStream out;
+        FileWriter out;
         System.out.println("sono qua");
         for (String dest:mail.getReceivers()) {
             synchronized (this.findAccount(dest)) {
                 path= dest +"/InArrivo/"+mail.getID();
                 receiver = new File(dirpath+"/"+path);
                 try {
-                    out=new ObjectOutputStream(new FileOutputStream(receiver)) ;
-                    out.writeObject(mail);
+                    receiver.createNewFile();
+
+                    out=new FileWriter(receiver) ;
+                    System.out.println("scrivo "+ gson.toJson(mail));
+                    out.write(gson.toJson(mail)+"\n");
+                    out.flush();
+                    out.close();
                     model.setLog(model.getLog() + "Email inviata da "+mail.getSender()+" a "+dest+"\n" );
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -159,13 +163,19 @@ public class MemoryManager {
     }
 
     private void readMailFromFile(String path,ArrayList<Email> out) throws IOException, ClassNotFoundException {
-        ObjectInputStream reader=null;
+        Scanner reader=null;
+        Gson gson=new Gson();
         File dir=new File(path);
+        String line = null;
         File[] daInviare=dir.listFiles();
         for(File i:daInviare)
         {
-            reader=new ObjectInputStream(new FileInputStream(i));
-            out.add((Email) reader.readObject());
+            reader = new Scanner(i);
+            while (reader.hasNextLine()) {
+                line = reader.nextLine();
+            }
+            out.add( gson.fromJson(line, Email.class ));
+            reader.close();
         }
         if (reader!=null)
             reader.close();

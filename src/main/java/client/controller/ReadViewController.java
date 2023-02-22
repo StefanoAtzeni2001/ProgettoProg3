@@ -31,7 +31,7 @@ public class ReadViewController {
         }
         this.model = model;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        lblDate.setText(model.getSelectedEmail().getDate().format(formatter));
+        lblDate.setText(model.getSelectedEmail().getDate()/*.format(formatter)*/);
         lblTo.setText(model.getSelectedEmail().getReceivers().toString());
         lblFrom.setText(model.getSelectedEmail().getSender());
         lblSubject.setText(model.getSelectedEmail().getSubject());

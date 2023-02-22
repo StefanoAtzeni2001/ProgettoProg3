@@ -19,4 +19,8 @@ public class ObjString {
         else return false;
 
     }
+    @Override
+    public String toString(){
+        return s;
+    }
 }

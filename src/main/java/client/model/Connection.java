@@ -16,6 +16,7 @@ public class Connection {
     public Connection(){
         try{
             socket = new Socket(InetAddress.getLocalHost(), 4242);
+            socket.setSoTimeout(10000);
             out = new ObjectOutputStream(socket.getOutputStream());
             in= new ObjectInputStream(socket.getInputStream());
         }catch(IOException e){

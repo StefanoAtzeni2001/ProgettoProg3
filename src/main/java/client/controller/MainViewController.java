@@ -3,6 +3,7 @@ package client.controller;
 import client.model.ClientModel;
 import client.model.Connection;
 import javafx.event.ActionEvent;
+import shared.Email;
 import shared.Message;
 import static client.controller.Dialogs.showErrorDialog;
 import static client.controller.Dialogs.showInfoDialog;
@@ -163,7 +164,9 @@ public class MainViewController {
     public void getAllEmails() {
         new Thread(() -> {
             Connection conn = new Connection();
-            Message res = conn.sendMessage(new Message("ALL", null));
+            Email email = new Email(null,model.getAccount(),null,null,null,null);
+            System.out.println("ALL2");
+            Message res = conn.sendMessage(new Message("ALL",List.of(email)));
             System.out.println(res);
             if (res.getMsg().equals("OK")) {
                 Platform.runLater(
@@ -188,7 +191,8 @@ public class MainViewController {
                     System.out.println(e);
                 }
                 Connection conn = new Connection();
-                Message res = conn.sendMessage(new Message("CHK", null));
+                Email email = new Email(null,model.getAccount(),null,null,null,null);
+                Message res = conn.sendMessage(new Message("CHK", List.of(email)));
                 System.out.println("check al server");
                 if (res.getMsg().equals("OK") && res.getEmails() != null) {
                     Platform.runLater(

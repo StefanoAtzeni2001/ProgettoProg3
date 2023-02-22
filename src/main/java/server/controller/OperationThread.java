@@ -73,6 +73,8 @@ public class OperationThread implements Runnable{
                     }
                 }
             }
+            out.flush();
+            out.close();
         }catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

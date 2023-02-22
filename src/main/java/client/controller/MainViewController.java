@@ -2,6 +2,7 @@ package client.controller;
 
 import client.model.ClientModel;
 import client.model.Connection;
+import javafx.event.ActionEvent;
 import shared.Message;
 import static client.controller.Dialogs.showErrorDialog;
 import static client.controller.Dialogs.showInfoDialog;
@@ -26,40 +27,47 @@ public class MainViewController {
     private Label lblAccount;
     @FXML
     private AnchorPane rootPane;
+    @FXML
+    private Button btnDark;
 
     private ClientModel model;
     private Stage stage;
-    private boolean running=true;
+    private boolean running = true;
+    private boolean darkMode = false;
+    private String urlTheme;
+
     @FXML
-    public void initModel(ClientModel model,Stage stage) {
+    public void initModel(ClientModel model, Stage stage) {
         if (this.model != null) {// ensure model is only set once:
             throw new IllegalStateException("[CLIENT] Model can only be initialized once");
         }
         this.model = model;
-        this.stage=stage;
+        this.stage = stage;
+        urlTheme = getClass().getResource("/ClientView/DarkTheme.css").toExternalForm();
         loadListView();
         getAllEmails();
         receiveEmails();
 
         lblAccount.textProperty().bind(model.accountProperty());
-        stage.setOnCloseRequest(event -> running=false);
+        stage.setOnCloseRequest(event -> running = false);
 
     }
 
 
-
-
     @FXML
-    public void loadListView(){
-            try {
-                URL listViewUrl = getClass().getResource("/ClientView/listView.fxml");
-                FXMLLoader listLoader = new FXMLLoader(listViewUrl);
-                AnchorPane pane=listLoader.load();
-                ListViewController listController = listLoader.getController();
-                listController.initModel(model);
-                rootPane.getChildren().setAll(pane);
-                btnBack.setVisible(false);
-            }catch(IOException e){System.out.println("[CLIENT] GUI Error");}
+    public void loadListView() {
+        try {
+            URL listViewUrl = getClass().getResource("/ClientView/listView.fxml");
+            FXMLLoader listLoader = new FXMLLoader(listViewUrl);
+            AnchorPane pane = listLoader.load();
+            ListViewController listController = listLoader.getController();
+            listController.initModel(model);
+            rootPane.getChildren().setAll(pane);
+            btnBack.setVisible(false);
+
+        } catch (IOException e) {
+            System.out.println("[CLIENT] GUI Error");
+        }
     }
 
     @FXML //Create and initialize the writeView, return the stage (not already shown)
@@ -77,8 +85,12 @@ public class MainViewController {
             Stage stage = new Stage();
             stage.setTitle("Write");
             stage.setScene(scene);
+            if (darkMode) scene.getStylesheets().add(urlTheme);
             return stage;
-        } catch (IOException e) {System.out.println("[CLIENT] GUI Error");return null;}
+        } catch (IOException e) {
+            System.out.println("[CLIENT] GUI Error");
+            return null;
+        }
     }
 
     public void onBackBtnClick() {
@@ -88,10 +100,10 @@ public class MainViewController {
 
     //send a "delete message" to server,delete selected email from the model and reload the listView
     public void onDeleteBtnClick() {
-        if(model.getSelectedEmail()!=null) {
+        if (model.getSelectedEmail() != null) {
             //send Message to server using a new thread
             new Thread(() -> {
-                Connection conn=new Connection();
+                Connection conn = new Connection();
                 Message res = conn.sendMessage(new Message("DEL", List.of(model.getSelectedEmail())));
                 System.out.println(res);
                 if (res.getMsg().equals("OK")) {
@@ -99,7 +111,8 @@ public class MainViewController {
                             () -> {
                                 model.deleteEmail(model.getSelectedEmail());
                                 showInfoDialog("Email correctly deleted!");
-                                loadListView();});
+                                loadListView();
+                            });
                 } else if (res.getMsg().equals("DWN")) {
                     Platform.runLater(
                             () -> showErrorDialog("Server is not responding...\nPlease try later"));
@@ -111,11 +124,13 @@ public class MainViewController {
 
     //show the writeView but "dest" and "subject" are already compiled and not editable
     public void onReplyBtnClick() {
-        if(model.getSelectedEmail()!=null) {
+        if (model.getSelectedEmail() != null) {
             Stage stage = loadWriteView();
             Scene scene = stage.getScene();
             scene.lookup("#txtTo").setDisable(true);
+            scene.lookup("#txtTo").setOpacity(0.7);
             scene.lookup("#txtSubject").setDisable(true);
+            scene.lookup("#txtSubject").setOpacity(0.7);
             model.setDest(model.getSelectedEmail().getSender());
             model.setSubject("Re: " + model.getSelectedEmail().getSubject());
             stage.show();
@@ -125,11 +140,13 @@ public class MainViewController {
 
     //show the writeView but "text" and "subject" are already compiled and not editable
     public void onForwardBtnClick() {
-        if(model.getSelectedEmail()!=null) {
+        if (model.getSelectedEmail() != null) {
             Stage stage = loadWriteView();
             Scene scene = stage.getScene();
             scene.lookup("#txtText").setDisable(true);
+            scene.lookup("#txtText").setOpacity(0.7);
             scene.lookup("#txtSubject").setDisable(true);
+            scene.lookup("#txtSubject").setOpacity(0.7);
             model.setText("[Inoltrato da: " + model.getSelectedEmail().getSender() + "]\n" + model.getSelectedEmail().getText());
             model.setSubject("Fwd: " + model.getSelectedEmail().getSubject());
             stage.show();
@@ -138,14 +155,14 @@ public class MainViewController {
 
 
     //show the writeView
-    public void onWriteBtnClick()  {
+    public void onWriteBtnClick() {
         loadWriteView().show();
     }
 
 
-    public void getAllEmails(){
+    public void getAllEmails() {
         new Thread(() -> {
-            Connection conn=new Connection();
+            Connection conn = new Connection();
             Message res = conn.sendMessage(new Message("ALL", null));
             System.out.println(res);
             if (res.getMsg().equals("OK")) {
@@ -161,31 +178,45 @@ public class MainViewController {
         }).start();
     }
 
-    public void receiveEmails(){
+    public void receiveEmails() {
         new Thread(() -> {
-            int sleepTime=3000;
-            while(running) {
+            int sleepTime = 3000;
+            while (running) {
                 try {
                     Thread.sleep(sleepTime);
-                } catch (InterruptedException e) {System.out.println(e);}
-                Connection conn=new Connection();
+                } catch (InterruptedException e) {
+                    System.out.println(e);
+                }
+                Connection conn = new Connection();
                 Message res = conn.sendMessage(new Message("CHK", null));
                 System.out.println("check al server");
-                if (res.getMsg().equals("OK")&& res.getEmails()!=null) {
+                if (res.getMsg().equals("OK") && res.getEmails() != null) {
                     Platform.runLater(
                             () -> {
                                 model.addAllEmail(res.getEmails());
-                                Scene scene =stage.getScene();
-                                if( scene.lookup("#listPane")!=null) loadListView();
-                                showInfoDialog("You received new emails ","check your inbox!");
+                                Scene scene = stage.getScene();
+                                if (scene.lookup("#listPane") != null) loadListView();
+                                showInfoDialog("You received new emails ", "check your inbox!");
                             });
                 } else if (res.getMsg().equals("DWN")) {
-                    sleepTime=15000;
+                    sleepTime = 15000;
                     Platform.runLater(
                             () -> showErrorDialog("OPS... connection lost :(", "Server is not responding...\nPlease try later"));
                 }
 
             }
         }).start();
+    }
+
+    public void onDarkBtnClick() {
+        Scene scene = stage.getScene();
+        if (darkMode) {
+            scene.getStylesheets().remove(urlTheme);
+            btnDark.setText("DarkMode");
+        } else {
+            scene.getStylesheets().add(urlTheme);
+            btnDark.setText("LightMode");
+        }
+        darkMode=!darkMode;
     }
 }

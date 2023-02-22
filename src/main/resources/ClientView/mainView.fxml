@@ -14,9 +14,21 @@
 
 <VBox alignment="TOP_CENTER" prefHeight="517.0" prefWidth="800.0" spacing="5.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.MainViewController">
     <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        <Insets bottom="20.0" left="20.0" right="10.0" top="20.0" />
     </padding>
    <children>
+      <HBox alignment="BOTTOM_LEFT">
+         <children>
+            <Button fx:id="btnDark" alignment="TOP_CENTER" mnemonicParsing="false" onAction="#onDarkBtnClick" text="DarkMode" HBox.hgrow="ALWAYS">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </Button>
+         </children>
+         <VBox.margin>
+            <Insets bottom="-25.0" />
+         </VBox.margin>
+      </HBox>
       <Label text="Email Manager" VBox.vgrow="ALWAYS">
          <font>
             <Font name="System Bold" size="35.0" />
@@ -29,7 +41,7 @@
          <children>
             <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" HBox.hgrow="ALWAYS">
                <children>
-                  <ImageView fitHeight="36.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="NEVER">
+                  <ImageView blendMode="DARKEN" cache="true" fitHeight="36.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="NEVER">
                      <image>
                         <Image url="@user.png" />
                      </image>

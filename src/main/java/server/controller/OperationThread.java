@@ -6,6 +6,7 @@ import shared.Message;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class OperationThread implements Runnable{
                         strings = mem.addMail(m);
 
                         if (strings != null) {
-                            mails.add(new Email(m.getID(), m.getSender(), strings, m.getSubject(), m.getText(), m.getDate()));
+                            mails.add(new Email(m.getID(), m.getSender(), strings, m.getSubject(), m.getText(), LocalDateTime.now()));
                             out.writeObject(new Message("ERR", mails));
 
                         } else {

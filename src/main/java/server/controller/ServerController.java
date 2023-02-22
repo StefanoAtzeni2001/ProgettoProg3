@@ -7,8 +7,7 @@ import shared.Email;
 import shared.Message;
 import server.model.ServerModel;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -56,37 +55,23 @@ public class ServerController {
                     threadPool.execute(()->{ //quando arriva una richiesta viene assegnato il task a un thread della threadpool
                         try {
                             ObjectInputStream in = new ObjectInputStream(req.getInputStream());
-                           // ObjectOutputStream out= new ObjectOutputStream(req.getOutputStream());
+                            ObjectOutputStream out= new ObjectOutputStream(req.getOutputStream());
 
                             Message msg = (Message) in.readObject();
                             System.out.println(msg);
                             model.setLog(model.getLog() + msg+"\n" );
 
-                            OperationThread op=new OperationThread(msg,mem,new ObjectOutputStream(req.getOutputStream()));
+                            OperationThread op=new OperationThread(msg,mem,out);
                             threadPool.execute(op);
 
-                            /* prova per vedere se funzionava il client
-                            switch(msg.getMsg()) {
-                                case "ALL": {
-                                    out.writeObject(new Message("OK", generateEmails(10)));
-                                    break;
-                                }
-                                case "CHK": {
-                                    Random rnd =new Random();
-                                    out.writeObject(new Message("OK", generateEmails(rnd.nextInt(0,3))));
-                                    break;
-                                }
-                                default: {
-                                    out.writeObject(new Message("OK", null));
-                                }
-                            }
-*/
+
                         }catch(Exception e ){System.out.println("[SERVER] Connection Error, Could not read from client");}
                     });
                 }catch(Exception e){System.out.println("[SERVER] Connection Error, Socket close");}
 
             }
         }).start();
+
     }
 
 

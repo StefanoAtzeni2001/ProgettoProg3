@@ -18,6 +18,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -106,7 +108,6 @@ public class MainViewController {
             new Thread(() -> {
                 Connection conn = new Connection();
                 Message res = conn.sendMessage(new Message("DEL", List.of(model.getSelectedEmail())));
-                System.out.println(res);
                 if (res.getMsg().equals("OK")) {
                     Platform.runLater(
                             () -> {
@@ -164,8 +165,7 @@ public class MainViewController {
     public void getAllEmails() {
         new Thread(() -> {
             Connection conn = new Connection();
-            Email email = new Email(null,model.getAccount(),null,null,null,null);
-            System.out.println("ALL2");
+            Email email = new Email(0,model.getAccount(),null,"","", LocalDateTime.now());
             Message res = conn.sendMessage(new Message("ALL",List.of(email)));
             System.out.println(res);
             if (res.getMsg().equals("OK")) {
@@ -183,7 +183,7 @@ public class MainViewController {
 
     public void receiveEmails() {
         new Thread(() -> {
-            int sleepTime = 3000;
+            int sleepTime = 5000;
             while (running) {
                 try {
                     Thread.sleep(sleepTime);
@@ -191,10 +191,17 @@ public class MainViewController {
                     System.out.println(e);
                 }
                 Connection conn = new Connection();
-                Email email = new Email(null,model.getAccount(),null,null,null,null);
+                Email email = new Email(0,model.getAccount(),null,"","", LocalDateTime.now());
                 Message res = conn.sendMessage(new Message("CHK", List.of(email)));
                 System.out.println("check al server");
-                if (res.getMsg().equals("OK") && res.getEmails() != null) {
+                if (res.getMsg().equals("OK") && !res.getEmails().isEmpty()) {
+                    ArrayList<String> idList=new ArrayList<>();
+                    for( Email em:res.getEmails())
+                        idList.add(em.getID().toString());
+                    Email cmtList=new Email(0,model.getAccount(),idList,"","", LocalDateTime.now());
+                    Connection conn2=new Connection();
+                    Message mes=new Message("CMT", List.of(cmtList));
+                    conn2.sendMessage(mes);
                     Platform.runLater(
                             () -> {
                                 model.addAllEmail(res.getEmails());
@@ -203,7 +210,7 @@ public class MainViewController {
                                 showInfoDialog("You received new emails ", "check your inbox!");
                             });
                 } else if (res.getMsg().equals("DWN")) {
-                    sleepTime = 15000;
+                    sleepTime = 10000;
                     Platform.runLater(
                             () -> showErrorDialog("OPS... connection lost :(", "Server is not responding...\nPlease try later"));
                 }

@@ -1,0 +1,47 @@
+.root{
+    -fx-background: rgb(44,44,44);
+}
+.label {
+    -fx-border-width: 2 2 2 2;
+    -fx-text-fill: rgb(154, 152, 152);
+}
+.button {
+    -fx-background-color: rgb(60, 63, 65);
+    -fx-text-fill: rgb(211, 211, 211);
+}
+
+.list-view, .list-cell {
+    -fx-background-color:  #333;
+    -fx-text-fill: rgb(211, 211, 211);
+}
+.list-cell:hover{
+    -fx-background-color: rgb(60, 63, 65);
+}
+.list-cell:selected{
+    -fx-background-color: #4d4d4d;
+}
+
+ .text-input {
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-background-color: #333;
+    -fx-border-color: #555;
+    -fx-border-width: 1 1 1 1;
+    -fx-text-fill: rgb(211, 211, 211);
+}
+ .text-area{
+     -fx-text-fill: rgb(211, 211, 211);
+     -fx-control-inner-background: #333;
+     -fx-border-color: #555;
+ }
+
+.scroll-bar {
+    -fx-background-color: rgba(0, 0, 0, 0);
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: rgb(107, 106, 106)
+}
+
+
+

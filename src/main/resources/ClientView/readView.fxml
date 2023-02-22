@@ -1,40 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="readPane" prefHeight="380.0" prefWidth="680.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.ReadViewController">
+<AnchorPane fx:id="readPane" prefHeight="350.0" prefWidth="700.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.ReadViewController">
    <children>
-      <SplitPane dividerPositions="0.24101479915433405" layoutX="14.0" layoutY="49.0" orientation="VERTICAL" prefHeight="380.0" prefWidth="680.0" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <items>
-          <AnchorPane prefHeight="47.0" prefWidth="679.0">
+      <VBox prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox style="-fx-border-color: grey;">
                <children>
-                  <Label layoutX="25.0" layoutY="45.0" text="From:" />
-                  <Label layoutX="25.0" layoutY="14.0" text="Subject:" />
-                  <Label fx:id="lblDate" layoutX="585.0" layoutY="8.0" text="15-02-2023 13:23">
-                     <font>
-                        <Font name="Arial" size="10.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="lblFrom" layoutX="85.0" layoutY="45.0" text="pippo@gmail.com" />
-                  <Label fx:id="lblSubject" layoutX="88.0" layoutY="7.0" text="Devo dirti una cosa importante">
-                     <font>
-                        <Font size="21.0" />
-                     </font>
-                  </Label>
-                  <Label layoutX="25.0" layoutY="64.0" text="to:" />
-                  <Label fx:id="lblTo" layoutX="85.0" layoutY="64.0" text="mail.diprova@edu.unito.it; altra.mail@libero.it" />
+                  <HBox alignment="TOP_RIGHT" fillHeight="false" VBox.vgrow="NEVER">
+                     <children>
+                        <Label fx:id="lblDate" maxHeight="-Infinity" text="15-02-2023 13:23" HBox.hgrow="ALWAYS">
+                           <font>
+                              <Font name="Arial" size="10.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox alignment="BOTTOM_LEFT" fillHeight="false" spacing="15.0" VBox.vgrow="NEVER">
+                     <children>
+                        <Label text="Subject:" />
+                        <Label fx:id="lblSubject" alignment="BOTTOM_LEFT" maxHeight="-Infinity" text="Devo dirti una cosa importante">
+                           <font>
+                              <Font size="21.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" fillHeight="false" spacing="28.0" VBox.vgrow="NEVER">
+                     <children>
+                        <Label text="From:" />
+                        <Label fx:id="lblFrom" text="pippo@gmail.com" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" fillHeight="false" spacing="43.0" VBox.vgrow="SOMETIMES">
+                     <children>
+                        <Label text="To:" />
+                        <Label fx:id="lblTo" text="mail.diprova@edu.unito.it; altra.mail@libero.it" />
+                     </children>
+                  </HBox>
+               </children>
+               <padding>
+                  <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+               </padding>
+            </VBox>
+          <AnchorPane VBox.vgrow="ALWAYS">
+               <children>
+                  <TextArea fx:id="txtText" editable="false" layoutY="-18.0" prefWidth="700.0" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                </children>
             </AnchorPane>
-          <AnchorPane prefHeight="372.0" prefWidth="679.0">
-               <children>
-                  <TextArea fx:id="txtText" editable="false" layoutY="-18.0" prefHeight="320.0" prefWidth="679.0" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-               </children>
-            </AnchorPane>
-        </items>
-      </SplitPane>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

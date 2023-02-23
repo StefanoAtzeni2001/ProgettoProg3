@@ -23,7 +23,7 @@ public class Message implements Serializable {
     @Override
     public String toString() {
         String s="{"+msg+"}";
-        if (emails!=null) {
+        if (emails!=null &&emails.size()>0) {
             Email email = emails.get(0);
             switch (msg) {
                 case "SND":

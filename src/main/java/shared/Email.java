@@ -50,6 +50,17 @@ public class Email implements Serializable {
         return  "[Da: " +sender + "]    "  + subject + " - " +   (text.length()>70 ? text.substring(0,50)+ "...": text);
     }
 
+    @Override
+    public boolean equals(Object o)
+    {
+        if(o!=null && o.getClass()==this.getClass())
+        {
+
+                return (this.id.equals(((Email) o).getID()));
+        }
+         return  false;
+    }
+
 
 
 }

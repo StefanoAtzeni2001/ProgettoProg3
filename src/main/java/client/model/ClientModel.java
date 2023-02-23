@@ -65,7 +65,8 @@ public class ClientModel {
 
     public synchronized void addAllEmail(List<Email> emails){
         for (Email email:  emails){
-            inboxContent.add(email);
+            if (!inboxContent.contains(email))
+                inboxContent.add(email);
         }
     }
 

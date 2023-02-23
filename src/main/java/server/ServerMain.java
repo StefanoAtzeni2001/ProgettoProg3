@@ -26,7 +26,7 @@ public class ServerMain extends Application{
         serverController.initModel(model,stage);
 
         Scene scene = new Scene(par, 400, 700);
-        stage.setTitle("Email Client");
+        stage.setTitle("Email Server");
         stage.setScene(scene);
         stage.show();
     }

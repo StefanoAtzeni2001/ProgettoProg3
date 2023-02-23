@@ -83,8 +83,8 @@ public class WriteViewController {
         }
 
     private boolean isWrong(String text) {
-        StringTokenizer st= new StringTokenizer(text);
-        String regexPattern = "[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,4}";
+        //"[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,4}";
+        String regexPattern = "[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+[a-zA-Z0-9][.]+[a-zA-Z]{2,4}";
         Pattern pattern=Pattern.compile(regexPattern);
         Matcher matcher = pattern.matcher(text);
         return !matcher.matches();

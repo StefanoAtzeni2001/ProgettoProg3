@@ -2,11 +2,6 @@ package client.controller;
 
 import client.model.ClientModel;
 import client.model.Connection;
-import javafx.event.ActionEvent;
-import shared.Email;
-import shared.Message;
-import static client.controller.Dialogs.showErrorDialog;
-import static client.controller.Dialogs.showInfoDialog;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,11 +11,17 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import shared.Email;
+import shared.Message;
+
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static client.controller.Dialogs.showErrorDialog;
+import static client.controller.Dialogs.showInfoDialog;
 
 
 public class MainViewController {
@@ -106,7 +107,7 @@ public class MainViewController {
             //send Message to server using a new thread
             new Thread(() -> {
                 Connection conn = new Connection();
-                Email tmp=new Email(target.getID(), model.getAccount(), List.of(model.getAccount()),null,null,null );
+                Email tmp=new Email(target.getID(), model.getAccount(), List.of(model.getAccount()),"","",LocalDateTime.now() );
                 Message res = conn.sendMessage(new Message("DEL", List.of(tmp)));
                 if (res.getMsg().equals("OK")) {
                     Platform.runLater(
@@ -183,7 +184,7 @@ public class MainViewController {
                         if (msg.equals("CHK")) { //client received new emails
                             ackMails(res);
                             Platform.runLater(() -> showInfoDialog("You received new emails ", "check your inbox!"));
-                        }else if(msg.equals("ALL")) {//client received all inbox
+                        }else {//client received all inbox
                             msg = "CHK";
                         }
                     }

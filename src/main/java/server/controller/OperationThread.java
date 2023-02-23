@@ -1,9 +1,9 @@
 package server.controller;
 
-import javafx.application.Platform;
 import server.model.ServerModel;
 import shared.Email;
 import shared.Message;
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
@@ -81,7 +81,7 @@ public class OperationThread implements Runnable{
                     //synch su cartella dell'account tramite ObjString
                     synchronized (mem.findAccount(msg.getEmails().get(0).getSender())) {
                         String dest = msg.getEmails().get(0).getSender();
-                        List<Email> list= mem.getMails(true, dest);
+                        List<Email> list= mem.getMails(false, dest);
                         model.setLog(model.getLog()+"[SERVER] sending - "+list.size()+" to "+dest+"\n" );
                         out.writeObject(new Message("OK", mem.getMails(false, dest)));
                     }

@@ -1,14 +1,14 @@
 package server.model;
-import com.google.gson.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class IdSequence {
 
 
     String path;
-    private Scanner reader;
     int i;
 
     public IdSequence(String dirpath) throws IOException {
@@ -24,7 +24,7 @@ public class IdSequence {
             writer.write(i+"\n");
             writer.close();
         }
-        reader = new Scanner(f);
+        Scanner reader= new Scanner(f);
 
         while (reader.hasNextLine()) {
             String line = reader.nextLine();

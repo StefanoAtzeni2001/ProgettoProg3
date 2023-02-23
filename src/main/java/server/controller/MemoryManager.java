@@ -10,13 +10,10 @@ import java.io.*;
 import java.util.*;
 
 public class MemoryManager {
-    private IdSequence ID_Seq;
-    private ServerModel model;
-    private String  dirpath= "./src/main/java/server/accounts";
+    private final IdSequence ID_Seq;
+    private final String  dirpath= "./src/main/java/server/accounts";
     private ArrayList<ObjString> accounts;
-    public MemoryManager(ServerModel model) throws IOException {
-
-        this.model=model;
+    public MemoryManager() throws IOException {
 
         File dir = new File(dirpath);
         if (!dir.isDirectory())
@@ -93,8 +90,8 @@ public class MemoryManager {
         boolean ok = false;
         String path;
         File receiver;
-        for (String dest:mail.getReceivers()) {
-            if(!accounts.contains(dest)) throw new RuntimeException("Not found");
+        for (String dest:(mail.getReceivers())) {
+            if(!accounts.contains(new ObjString(dest))) throw new RuntimeException("Not found");
             path = dest + "/InArrivo/" + mail.getID();
             receiver = new File(dirpath + "/" + path);
 

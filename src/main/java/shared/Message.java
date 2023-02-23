@@ -22,6 +22,21 @@ public class Message implements Serializable {
 
     @Override
     public String toString() {
-        return "{" +msg+"} " + emails;
+        Email email= emails.get(0);
+        String s="{"+msg+"} ("+email.getSender()+") ";
+
+        switch (msg){
+            case "SND":
+                s=s+ "-> " +email.getReceivers();
+                break;
+            case "DEL":
+                s=s+ "["+email.getID()+"]";
+                break;
+            case "CMT":
+                s=s+" " +email.getReceivers() ;
+                break;
+        }
+        return s;
     }
+
 }

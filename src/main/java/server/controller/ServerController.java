@@ -81,6 +81,7 @@ public class ServerController {
     }
 
 
-
-
+    public void onClearBtnClick() {
+        model.setLog("");
+    }
 }

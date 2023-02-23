@@ -128,7 +128,7 @@ public class MemoryManager {
 
 
         if (sourceFile.renameTo(targetFile)) {
-            model.setLog("Email  " + ID + " inviata a " + dest + "\n");
+            model.setLog(model.getLog() +"Email  " + ID + " inviata a " + dest + "\n");
             return true;
         } else {
             System.err.println("Nessuna mail con ID "+ID+" in arrivo a "+dest);

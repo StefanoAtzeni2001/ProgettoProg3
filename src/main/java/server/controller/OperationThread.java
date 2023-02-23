@@ -1,5 +1,7 @@
 package server.controller;
 
+import javafx.application.Platform;
+import server.model.ServerModel;
 import shared.Email;
 import shared.Message;
 import java.io.IOException;
@@ -13,11 +15,13 @@ public class OperationThread implements Runnable{
     private Message msg;
     private MemoryManager mem;
     ObjectOutputStream out;
+    ServerModel model;
 
-    public OperationThread(Message e, MemoryManager mem, ObjectOutputStream out){
+    public OperationThread(Message e, MemoryManager mem, ObjectOutputStream out, ServerModel model){
         this.mem=mem;
         this.msg=e;
         this.out=out;
+        this.model=model;
     }
     @Override
     public void run() {
@@ -26,16 +30,21 @@ public class OperationThread implements Runnable{
                 case "SND" -> {
 
                         List<Email> mails = new ArrayList<>();
-                        List<String> NonExistentAcc;
+                        List<String> NonExistentAcc = null;
                         Email m;
 
                         m = msg.getEmails().get(0);
                         //NonExistentAcc raccoglie gli account non presenti nel server
-                        NonExistentAcc = mem.addMail(m);
-
+                        try {
+                            NonExistentAcc = mem.addMail(m);
+                        }catch (IOException e){
+                            mem.delete_Email(m);
+                            model.setLog(model.getLog()+"SERVER ERROR: Email not sent\n" );
+                        }
                         if (NonExistentAcc != null) {
                             //invia un messaggio con Email composta di metadati
                             mails.add(new Email(m.getID(), m.getSender(), NonExistentAcc, m.getSubject(), m.getText(), LocalDateTime.now()));
+                            model.setLog(model.getLog()+m.getSender()+" ERROR: Invalid Receiver : "+NonExistentAcc.size()+"\n" );
                             out.writeObject(new Message("ERR", mails));
                         } else {
                             out.writeObject(new Message("OK", null));
@@ -43,10 +52,18 @@ public class OperationThread implements Runnable{
 
                 }
                 case "DEL" -> {
-                    boolean b = mem.delete_Email(msg.getEmails().get(0));
+                    boolean b=false;
+                    try {
+                         b = mem.delete_Email(msg.getEmails().get(0));
+                    }catch(RuntimeException e){
+                        if(e.getMessage()=="Not found")
+                            model.setLog(model.getLog()+"Account - "+msg.getEmails().get(0)+" not found\n" );
+                    }
                     Message risp;
-                    if (b)
+                    if (b) {
                         risp = new Message("OK", null);
+                        model.setLog(model.getLog()+"Email - "+msg.getEmails().get(0)+" deleted\n" );
+                    }
                     else
                         risp = new Message("ERR", null); //nel caso in cui la mai non sia stata effettivamente cancellata si manda messaggio di errore
                     out.writeObject(risp);
@@ -55,13 +72,17 @@ public class OperationThread implements Runnable{
                     //synch su cartella dell'account tramite ObjString
                     synchronized (mem.findAccount(msg.getEmails().get(0).getSender())) {
                         String dest = msg.getEmails().get(0).getSender();
-                        out.writeObject(new Message("OK", mem.getMails(true, dest)));
+                        List<Email> list= mem.getMails(true, dest);
+                        model.setLog(model.getLog()+"[SERVER] sending - "+list.size()+" to "+dest+"\n" );
+                        out.writeObject(new Message("OK",list));
                     }
                 }
                 case "CHK" -> {
                     //synch su cartella dell'account tramite ObjString
                     synchronized (mem.findAccount(msg.getEmails().get(0).getSender())) {
                         String dest = msg.getEmails().get(0).getSender();
+                        List<Email> list= mem.getMails(true, dest);
+                        model.setLog(model.getLog()+"[SERVER] sending - "+list.size()+" to "+dest+"\n" );
                         out.writeObject(new Message("OK", mem.getMails(false, dest)));
                     }
                 }
@@ -73,6 +94,7 @@ public class OperationThread implements Runnable{
                         String target = msg.getEmails().get(0).getSender();
                         for (String i : IDs) {
                             mem.move_email(i, target);
+                            model.setLog(model.getLog()+"{ "+i+" } - "+target+" moved\n" );
                         }
                     }
                 }

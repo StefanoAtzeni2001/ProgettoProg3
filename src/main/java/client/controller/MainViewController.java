@@ -103,15 +103,17 @@ public class MainViewController {
 
     //send a "delete message" to server,delete selected email from the model and reload the listView
     public void onDeleteBtnClick() {
-        if (model.getSelectedEmail() != null) {
+        Email target=model.getSelectedEmail();
+        if (target != null) {
             //send Message to server using a new thread
             new Thread(() -> {
                 Connection conn = new Connection();
-                Message res = conn.sendMessage(new Message("DEL", List.of(model.getSelectedEmail())));
+                Email tmp=new Email(target.getID(), model.getAccount(), List.of(model.getAccount()),null,null,null );
+                Message res = conn.sendMessage(new Message("DEL", List.of(tmp)));
                 if (res.getMsg().equals("OK")) {
                     Platform.runLater(
                             () -> {
-                                model.deleteEmail(model.getSelectedEmail());
+                                model.deleteEmail(target);
                                 showInfoDialog("Email correctly deleted!");
                                 loadListView();
                             });

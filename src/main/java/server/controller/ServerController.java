@@ -1,19 +1,20 @@
 package server.controller;
 
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 import server.model.ServerModel;
 import shared.Message;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 
 
 public class ServerController {
@@ -36,16 +37,23 @@ public class ServerController {
     }
 
     private void startServer() {
-        MemoryManager mem = new MemoryManager(model);
+        MemoryManager mem = null;
+        try {
+            mem = new MemoryManager(model);
+        } catch (IOException e) {
+            model.setLog(model.getLog() + "FATAL ERROR: Corrupt Index "+"\n" );
+        }
 
         try {
             socket = new ServerSocket(4242);
         } catch (Exception e) {
-            System.out.println("[SERVER] Error opening the socket");
+            model.setLog(model.getLog() + "[SERVER] Error opening the socket\n");
         }
         threadPool = Executors.newFixedThreadPool(THREAD_NUMBER);
         //il thread main si occupa della gui
-        new Thread(()->{//thread che rimane in loop in ascolto sul socket
+        if(mem!=null) {
+            MemoryManager finalMem = mem;
+            new Thread(()->{//thread che rimane in loop in ascolto sul socket
             while(running){
                 try{
                     Socket req=socket.accept(); //bloccante
@@ -58,16 +66,21 @@ public class ServerController {
                             System.out.println(msg);
                             model.setLog(model.getLog() + msg+"\n" );
 
-                            OperationThread op=new OperationThread(msg,mem,out);
+                            OperationThread op=new OperationThread(msg, finalMem,out,model);
                             threadPool.execute(op);
 
 
-                        }catch(Exception e ){System.out.println("[SERVER] Connection Error, Could not read from client");}
+                        }catch(Exception e ){
+                            Platform.runLater(
+                                    () -> {
+                                        model.setLog(model.getLog() +"[SERVER] Connection Error, Could not read from client\n" );
+                                    });}
                     });
-                }catch(Exception e){System.out.println("[SERVER] Connection Error, Socket close");}
+                }catch(Exception e){model.setLog(model.getLog() +"[SERVER] Connection Error, Socket error" );}
 
             }
         }).start();
+        }else closeServer();
 
     }
 

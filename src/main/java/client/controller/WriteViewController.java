@@ -3,19 +3,17 @@ package client.controller;
 import client.model.ClientModel;
 import client.model.Connection;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.scene.control.CheckBox;
-import javafx.stage.Stage;
-import shared.Email;
-import shared.Message;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import shared.Email;
+import shared.Message;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,8 +37,6 @@ public class WriteViewController {
         txtText.textProperty().bindBidirectional(model.textProperty());
         txtTo.textProperty().bindBidirectional(model.destProperty());
         txtSubject.textProperty().bindBidirectional(model.subjectProperty());
-       // chkReplyAll.selectedProperty().
-      //  model.setDest(model.getSelectedEmail().getSender());
         destList=new ArrayList<>();
     }
 

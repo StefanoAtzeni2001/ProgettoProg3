@@ -3,9 +3,11 @@ package shared;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
-public class Email implements Serializable {
+public class Email implements Serializable,Comparable<Email> {
     private Integer id;
     private String sender;
     private List<String> receivers;
@@ -21,7 +23,8 @@ public class Email implements Serializable {
         this.receivers = receivers;
         this.subject = subject;
         this.text = text;
-        this.date=date.toString();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        this.date = date.format(formatter);
     }
 
     public String getSender() {
@@ -60,6 +63,15 @@ public class Email implements Serializable {
                 return (this.id.equals(((Email) o).getID()));
         }
          return  false;
+    }
+
+
+    @Override
+    public int compareTo(Email o) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime dateTime1 = LocalDateTime.parse(date, formatter);
+        LocalDateTime dateTime2 = LocalDateTime.parse(o.getDate(), formatter);
+        return dateTime1.compareTo(dateTime2);
     }
 
 

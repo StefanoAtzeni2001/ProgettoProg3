@@ -48,16 +48,14 @@ public class MainViewController {
         this.stage = stage;
         urlTheme = getClass().getResource("/ClientView/DarkTheme.css").toExternalForm();
         loadListView();
-        getAllEmails();
-
-
+        receiveEmails();
         lblAccount.textProperty().bind(model.accountProperty());
         stage.setOnCloseRequest(event -> running = false);
 
     }
 
 
-    @FXML
+    @FXML//Create and load ListView in the rootPane of mainView
     public void loadListView() {
         try {
             URL listViewUrl = getClass().getResource("/ClientView/listView.fxml");
@@ -133,6 +131,7 @@ public class MainViewController {
             scene.lookup("#txtTo").setOpacity(0.7);
             scene.lookup("#txtSubject").setDisable(true);
             scene.lookup("#txtSubject").setOpacity(0.7);
+            //if the selected email has more than 1 receiver, it's possible to select the "Reply all" option
             if(model.getSelectedEmail().getReceivers().size()>1)
                 scene.lookup("#chkReplyAll").setVisible(true);
             model.setDest(model.getSelectedEmail().getSender());
@@ -163,54 +162,36 @@ public class MainViewController {
         loadWriteView().show();
     }
 
-
-    public void getAllEmails() {
+    public void receiveEmails() {
         new Thread(() -> {
-            String ms="ALL";
+            String msg="ALL";
             final String myAccount=model.getAccount();
-
+            int sleepTime=7000;
             while(running) {
                 Connection conn = new Connection();
                 Email email = new Email(0,myAccount, null, "", "", LocalDateTime.now());
-                Message res = conn.sendMessage(new Message(ms, List.of(email)));
-                if (res.getMsg().equals("OK")){
-                    ackMails(res);
-                    if(ms.equals("CHK") && !res.getEmails().isEmpty()) {
-                        Platform.runLater(
-                                () -> {
-                                    model.addAllEmail(res.getEmails());
-                                    Scene scene = stage.getScene();
-                                    if (scene.lookup("#listPane") != null) loadListView();
-                                    showInfoDialog("You received new emails ", "check your inbox!");
-                                });
-                        try {
-                            Thread.sleep(7000);
-                        } catch (InterruptedException ignored) {}
-
+                Message res = conn.sendMessage(new Message(msg, List.of(email)));
+                if (res.getMsg().equals("OK")){//Server received message
+                    if(!res.getEmails().isEmpty()) {//Server sent some emails
+                        Platform.runLater(() -> {
+                            model.addAllEmail(res.getEmails());
+                            Scene scene = stage.getScene();
+                            if (scene.lookup("#listPane") != null) loadListView();
+                        });
+                        if (msg.equals("CHK")) { //client received new emails
+                            ackMails(res);
+                            Platform.runLater(() -> showInfoDialog("You received new emails ", "check your inbox!"));
+                        }else if(msg.equals("ALL")) {//client received all inbox
+                            msg = "CHK";
+                        }
                     }
-                    else {
-                        ms = "CHK";
-                        Platform.runLater(
-                                () -> {
-                                    model.addAllEmail(res.getEmails());
-                                    loadListView();
-                                });
-                        try {
-                            Thread.sleep(5000);
-                        } catch (InterruptedException ignored) {}
-                    }
-
-                } else if (res.getMsg().equals("DWN")) {
-                    Platform.runLater(
-                            () -> showErrorDialog("Server is not responding...\nPlease try later"));
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException ignored) {
-                    }
-                } else  try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException ignored) {}
-                System.out.println("ho fatto"+ms);
+                } else if (res.getMsg().equals("DWN")) {//Server didn't receive respond
+                    Platform.runLater(() -> showErrorDialog("Server is not responding...\nPlease try later"));
+                    sleepTime = 10000;
+                }
+                try {
+                    Thread.sleep(sleepTime);
+                } catch (InterruptedException e) {System.out.println(e);}
             }
         }).start();
     }
@@ -221,49 +202,10 @@ public class MainViewController {
         for( Email em: res.getEmails())
             idList.add(em.getID().toString());
         Email cmtList=new Email(0,model.getAccount(),idList,"","", LocalDateTime.now());
-        Connection conn2=new Connection();
+        Connection conn=new Connection();
         Message mes=new Message("ACK", List.of(cmtList));
-        conn2.sendMessage(mes);
+        conn.sendMessage(mes);
     }
-/*
-    public void receiveEmails() {
-        new Thread(() -> {
-            final String myAccount=model.getAccount();
-            int sleepTime = 5000;
-            while (running) {
-                try {
-                    Thread.sleep(sleepTime);
-                } catch (InterruptedException e) {
-                    System.out.println(e);
-                }
-                Connection conn = new Connection();
-                Email email = new Email(0,myAccount,null,"","", LocalDateTime.now());
-                Message res = conn.sendMessage(new Message("CHK", List.of(email)));
-                System.out.println("check al server");
-                if (res.getMsg().equals("OK") && !res.getEmails().isEmpty()) {
-                    ArrayList<String> idList=new ArrayList<>();
-                    for( Email em:res.getEmails())
-                        idList.add(em.getID().toString());
-                    Email cmtList=new Email(0,model.getAccount(),idList,"","", LocalDateTime.now());
-                    Connection conn2=new Connection();
-                    Message mes=new Message("CMT", List.of(cmtList));
-                    conn2.sendMessage(mes);
-                    Platform.runLater(
-                            () -> {
-                                model.addAllEmail(res.getEmails());
-                                Scene scene = stage.getScene();
-                                if (scene.lookup("#listPane") != null) loadListView();
-                                showInfoDialog("You received new emails ", "check your inbox!");
-                            });
-                } else if (res.getMsg().equals("DWN")) {
-                    sleepTime = 10000;
-                    Platform.runLater(
-                            () -> showErrorDialog("OPS... connection lost :(", "Server is not responding...\nPlease try later"));
-                }
-
-            }
-        }).start();
-    }*/
 
     public void onDarkBtnClick() {
         Scene scene = stage.getScene();

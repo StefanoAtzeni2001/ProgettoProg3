@@ -164,25 +164,34 @@ public class MainViewController {
 
     public void getAllEmails() {
         new Thread(() -> {
-            Connection conn = new Connection();
-            Email email = new Email(0,model.getAccount(),null,"","", LocalDateTime.now());
-            Message res = conn.sendMessage(new Message("ALL",List.of(email)));
-            System.out.println(res);
-            if (res.getMsg().equals("OK")) {
-                Platform.runLater(
-                        () -> {
-                            model.addAllEmail(res.getEmails());
-                            loadListView();
-                        });
-            } else if (res.getMsg().equals("DWN")) {
-                Platform.runLater(
-                        () -> showErrorDialog("Server is not responding...\nPlease try later"));
+            boolean done=false;
+            while(!done) {
+                Connection conn = new Connection();
+                Email email = new Email(0, model.getAccount(), null, "", "", LocalDateTime.now());
+                Message res = conn.sendMessage(new Message("ALL", List.of(email)));
+                System.out.println(res);
+                if (res.getMsg().equals("OK")) {
+                    done=true;
+                    Platform.runLater(
+                            () -> {
+                                model.addAllEmail(res.getEmails());
+                                loadListView();
+                            });
+                } else if (res.getMsg().equals("DWN")) {
+                    Platform.runLater(
+                            () -> showErrorDialog("Server is not responding...\nPlease try later"));
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException ignored) {
+                    }
+                }
             }
         }).start();
     }
 
     public void receiveEmails() {
         new Thread(() -> {
+            final String myAccount=model.getAccount();
             int sleepTime = 5000;
             while (running) {
                 try {
@@ -191,7 +200,7 @@ public class MainViewController {
                     System.out.println(e);
                 }
                 Connection conn = new Connection();
-                Email email = new Email(0,model.getAccount(),null,"","", LocalDateTime.now());
+                Email email = new Email(0,myAccount,null,"","", LocalDateTime.now());
                 Message res = conn.sendMessage(new Message("CHK", List.of(email)));
                 System.out.println("check al server");
                 if (res.getMsg().equals("OK") && !res.getEmails().isEmpty()) {

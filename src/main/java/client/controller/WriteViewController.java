@@ -3,6 +3,8 @@ package client.controller;
 import client.model.ClientModel;
 import client.model.Connection;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.scene.control.CheckBox;
 import javafx.stage.Stage;
 import shared.Email;
 import shared.Message;
@@ -25,9 +27,10 @@ public class WriteViewController {
     public TextField txtSubject;
     public TextArea txtText;
     public VBox mainBox;
+    public CheckBox chkReplyAll;
     private List<String> destList;
-
     private ClientModel model;
+
 
 
 
@@ -36,6 +39,8 @@ public class WriteViewController {
         txtText.textProperty().bindBidirectional(model.textProperty());
         txtTo.textProperty().bindBidirectional(model.destProperty());
         txtSubject.textProperty().bindBidirectional(model.subjectProperty());
+       // chkReplyAll.selectedProperty().
+      //  model.setDest(model.getSelectedEmail().getSender());
         destList=new ArrayList<>();
     }
 
@@ -50,7 +55,10 @@ public class WriteViewController {
                 destList = List.of(model.getDest().replaceAll("\\s", "").split(";"));
                 List<String> err = checkEmails(destList);
                 if (err != null) {
-                    showWarningDialog("invalid emails: " +err,"Email non valida : deve contenere @ e non può contenere caratteri speciali");
+                    showWarningDialog("invalid emails: " +err,
+                            "Email non valida:\n" +
+                                    " deve contenere @ e non può contenere caratteri speciali \n" +
+                                    "usare il ';' per separare più destinatari");
                 } else {
                     //create Message
                     Email email = new Email(0, model.getAccount(), destList, model.getSubject(), model.getText(), LocalDateTime.now());
@@ -96,6 +104,14 @@ public class WriteViewController {
         else return err;
     }
 
+    public void onReplyAllChkClick() {
+        String dests=model.getSelectedEmail().getSender();
+        if(chkReplyAll.isSelected()) {
+            for(String rec:model.getSelectedEmail().getReceivers())
+                if(!rec.equals(model.getAccount())) dests=dests+"; "+rec;
+       }
+           model.setDest(dests);
+    }
 }
 
 

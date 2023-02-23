@@ -12,7 +12,7 @@
    <children>
       <VBox prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <VBox style="-fx-border-color: grey;">
+            <VBox style="-fx-border-width: 0.5; -fx-border-color: grey;">
                <children>
                   <HBox alignment="TOP_RIGHT" fillHeight="false" VBox.vgrow="NEVER">
                      <children>
@@ -54,6 +54,9 @@
                <children>
                   <TextArea fx:id="txtText" editable="false" layoutY="-18.0" prefWidth="700.0" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
             </AnchorPane>
          </children>
       </VBox>

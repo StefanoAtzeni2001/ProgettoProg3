@@ -22,19 +22,22 @@ public class Message implements Serializable {
 
     @Override
     public String toString() {
-        Email email= emails.get(0);
-        String s="{"+msg+"} ("+email.getSender()+") ";
-
-        switch (msg){
-            case "SND":
-                s=s+ "-> " +email.getReceivers();
-                break;
-            case "DEL":
-                s=s+ "["+email.getID()+"]";
-                break;
-            case "CMT":
-                s=s+" " +email.getReceivers() ;
-                break;
+        String s="{"+msg+"}";
+        if (emails!=null) {
+            Email email = emails.get(0);
+            switch (msg) {
+                case "SND":
+                    s = s + "(" + email.getSender() + ") -> " + email.getReceivers();
+                    break;
+                case "DEL":
+                    s = s + "(" + email.getSender() + ") " + "[" + email.getID() + "]";
+                    break;
+                case "CMT":
+                    s = s + "(" + email.getSender() + ") " + email.getReceivers();
+                    break;
+                default:
+                    s = s + "(" + email.getSender() + ")";
+            }
         }
         return s;
     }

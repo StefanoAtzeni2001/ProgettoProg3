@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Connection {
     private  Socket socket;
@@ -26,6 +27,7 @@ public class Connection {
     public  Message sendMessage(Message msg){
         Message error =new Message("DWN", null);
         if (in==null || out ==null) {
+            closeConnection();
             return error;
         }else {
             try {

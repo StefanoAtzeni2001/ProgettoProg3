@@ -133,6 +133,8 @@ public class MainViewController {
             scene.lookup("#txtTo").setOpacity(0.7);
             scene.lookup("#txtSubject").setDisable(true);
             scene.lookup("#txtSubject").setOpacity(0.7);
+            if(model.getSelectedEmail().getReceivers().size()>1)
+                scene.lookup("#chkReplyAll").setVisible(true);
             model.setDest(model.getSelectedEmail().getSender());
             model.setSubject("Re: " + model.getSelectedEmail().getSubject());
             stage.show();

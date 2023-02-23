@@ -42,6 +42,23 @@
 .scroll-bar .thumb {
     -fx-background-color: rgb(107, 106, 106)
 }
+.check-box{
+    -fx-text-fill: rgb(154, 152, 152);
+}
+
+.check-box .box {
+    -fx-background-color: #343333;
+    -fx-border-color: #9a9898;
+    -fx-border-radius:3px;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: #9a9898;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #343333;
+}
 
 
 

@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
+
 public class Connection {
     private  Socket socket;
     private  ObjectInputStream in;
@@ -32,15 +33,13 @@ public class Connection {
             try {
                 out.writeObject(msg);
                 out.flush();
-                msg =(Message) in.readObject();
-                closeConnection();
-                return msg;
+                return (Message) in.readObject();
             } catch (IOException e) {
                 if(e.getMessage()!=null)
                     System.out.println("[CLIENT] Connection Error, server is not Responding");
                 return error;
             } catch (ClassNotFoundException e) {
-                System.err.println(e.getMessage());
+                System.out.println(e.getMessage());
                 return error;
             } finally {
                 closeConnection();
@@ -50,9 +49,9 @@ public class Connection {
 
     private void closeConnection() {
         try{
+            if (socket != null){socket.close();}
             if (in != null){in.close();}
             if (out != null){out.close();}
-            if (socket != null){socket.close();}
         } catch (IOException e) {
             System.out.println("[CLIENT] Connection Error, Could not properly close Connection");
         }

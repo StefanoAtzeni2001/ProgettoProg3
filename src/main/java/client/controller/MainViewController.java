@@ -49,7 +49,7 @@ public class MainViewController {
         urlTheme = getClass().getResource("/ClientView/DarkTheme.css").toExternalForm();
         loadListView();
         getAllEmails();
-        receiveEmails();
+
 
         lblAccount.textProperty().bind(model.accountProperty());
         stage.setOnCloseRequest(event -> running = false);
@@ -164,31 +164,68 @@ public class MainViewController {
 
     public void getAllEmails() {
         new Thread(() -> {
-            boolean done=false;
-            while(!done) {
+            ArrayList<String>idList;
+            String ms="ALL";
+            final String myAccount=model.getAccount();
+
+            while(running) {
                 Connection conn = new Connection();
-                Email email = new Email(0, model.getAccount(), null, "", "", LocalDateTime.now());
-                Message res = conn.sendMessage(new Message("ALL", List.of(email)));
-                System.out.println(res);
-                if (res.getMsg().equals("OK")) {
-                    done=true;
-                    Platform.runLater(
-                            () -> {
-                                model.addAllEmail(res.getEmails());
-                                loadListView();
-                            });
+                Email email = new Email(0,myAccount, null, "", "", LocalDateTime.now());
+                Message res = conn.sendMessage(new Message(ms, List.of(email)));
+                if (res.getMsg().equals("OK") && !res.getEmails().isEmpty()) {
+                    System.out.println(res);
+                    ackMails(res);
+
+                    if(ms.equals("CHK")) {
+                        Platform.runLater(
+                                () -> {
+                                    model.addAllEmail(res.getEmails());
+                                    Scene scene = stage.getScene();
+                                    if (scene.lookup("#listPane") != null) loadListView();
+                                    showInfoDialog("You received new emails ", "check your inbox!");
+                                });
+                        try {
+                            Thread.sleep(7000);
+                        } catch (InterruptedException ignored) {}
+
+                    }
+                    else {
+                        ms = "CHK";
+                        Platform.runLater(
+                                () -> {
+                                    model.addAllEmail(res.getEmails());
+                                    loadListView();
+                                });
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException ignored) {}
+                    }
+
                 } else if (res.getMsg().equals("DWN")) {
                     Platform.runLater(
                             () -> showErrorDialog("Server is not responding...\nPlease try later"));
                     try {
-                        Thread.sleep(10000);
+                        Thread.sleep(5000);
                     } catch (InterruptedException ignored) {
                     }
-                }
+                } else  try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException ignored) {}
             }
         }).start();
     }
 
+    private void ackMails(Message res) {
+        ArrayList<String> idList;
+        idList=new ArrayList<>();
+        for( Email em: res.getEmails())
+            idList.add(em.getID().toString());
+        Email cmtList=new Email(0,model.getAccount(),idList,"","", LocalDateTime.now());
+        Connection conn2=new Connection();
+        Message mes=new Message("ACK", List.of(cmtList));
+        conn2.sendMessage(mes);
+    }
+/*
     public void receiveEmails() {
         new Thread(() -> {
             final String myAccount=model.getAccount();
@@ -226,7 +263,7 @@ public class MainViewController {
 
             }
         }).start();
-    }
+    }*/
 
     public void onDarkBtnClick() {
         Scene scene = stage.getScene();

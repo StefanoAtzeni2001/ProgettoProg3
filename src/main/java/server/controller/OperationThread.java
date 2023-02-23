@@ -63,7 +63,7 @@ public class OperationThread implements Runnable{
                         out.writeObject(new Message("OK", mem.getMails(false, dest)));
                     }
                 }
-                case "CMT" -> {
+                case "ACK" -> {
                     synchronized (mem.findAccount(msg.getEmails().get(0).getSender())) {
                         List<String> IDs = msg.getEmails().get(0).getReceivers();
                         String target = msg.getEmails().get(0).getSender();

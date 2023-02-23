@@ -2,14 +2,13 @@ package server.controller;
 
 import shared.Email;
 import shared.Message;
-
-
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+//Task che gestiscono le operazion sul server
 public class OperationThread implements Runnable{
     private Message msg;
     private MemoryManager mem;
@@ -27,16 +26,17 @@ public class OperationThread implements Runnable{
                 case "SND" -> {
 
                         List<Email> mails = new ArrayList<>();
-                        List<String> strings;
+                        List<String> NonExistentAcc;
                         Email m;
 
                         m = msg.getEmails().get(0);
-                        strings = mem.addMail(m);
+                        //NonExistentAcc raccoglie gli account non presenti nel server
+                        NonExistentAcc = mem.addMail(m);
 
-                        if (strings != null) {
-                            mails.add(new Email(m.getID(), m.getSender(), strings, m.getSubject(), m.getText(), LocalDateTime.now()));
+                        if (NonExistentAcc != null) {
+                            //invia un messaggio con Email composta di metadati
+                            mails.add(new Email(m.getID(), m.getSender(), NonExistentAcc, m.getSubject(), m.getText(), LocalDateTime.now()));
                             out.writeObject(new Message("ERR", mails));
-
                         } else {
                             out.writeObject(new Message("OK", null));
                         }
@@ -48,23 +48,27 @@ public class OperationThread implements Runnable{
                     if (b)
                         risp = new Message("OK", null);
                     else
-                        risp = new Message("ERR", null);
+                        risp = new Message("ERR", null); //nel caso in cui la mai non sia stata effettivamente cancellata si manda messaggio di errore
                     out.writeObject(risp);
                 }
                 case "ALL" -> {
+                    //synch su cartella dell'account tramite ObjString
                     synchronized (mem.findAccount(msg.getEmails().get(0).getSender())) {
                         String dest = msg.getEmails().get(0).getSender();
                         out.writeObject(new Message("OK", mem.getMails(true, dest)));
                     }
                 }
                 case "CHK" -> {
+                    //synch su cartella dell'account tramite ObjString
                     synchronized (mem.findAccount(msg.getEmails().get(0).getSender())) {
                         String dest = msg.getEmails().get(0).getSender();
                         out.writeObject(new Message("OK", mem.getMails(false, dest)));
                     }
                 }
                 case "ACK" -> {
+                    //synch su cartella dell'account tramite ObjString
                     synchronized (mem.findAccount(msg.getEmails().get(0).getSender())) {
+                        //estrazione id dal messaggio contenuti in una mail di metadati
                         List<String> IDs = msg.getEmails().get(0).getReceivers();
                         String target = msg.getEmails().get(0).getSender();
                         for (String i : IDs) {

@@ -3,7 +3,6 @@ package shared;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Email implements Serializable {
@@ -47,7 +46,9 @@ public class Email implements Serializable {
 
     @Override
     public String toString() {
-        return  "[Da: " +sender + "]    "  + subject + " - " +   (text.length()>70 ? text.substring(0,50)+ "...": text);
+        String tmp= (text.length()>70 ? text.substring(0,50)+ "...": text);
+        tmp=tmp.replaceAll("\n"," ");
+        return  "[Da: " +sender + "]    "  + subject + " - " +   tmp;
     }
 
     @Override

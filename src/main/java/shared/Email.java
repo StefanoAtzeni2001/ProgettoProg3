@@ -59,7 +59,6 @@ public class Email implements Serializable,Comparable<Email> {
     {
         if(o!=null && o.getClass()==this.getClass())
         {
-
                 return (this.id.equals(((Email) o).getID()));
         }
          return  false;

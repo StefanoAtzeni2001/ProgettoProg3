@@ -166,7 +166,6 @@ public class MainViewController {
 
     public void getAllEmails() {
         new Thread(() -> {
-            ArrayList<String>idList;
             String ms="ALL";
             final String myAccount=model.getAccount();
 
@@ -174,11 +173,9 @@ public class MainViewController {
                 Connection conn = new Connection();
                 Email email = new Email(0,myAccount, null, "", "", LocalDateTime.now());
                 Message res = conn.sendMessage(new Message(ms, List.of(email)));
-                if (res.getMsg().equals("OK") && !res.getEmails().isEmpty()) {
-                    System.out.println(res);
+                if (res.getMsg().equals("OK")){
                     ackMails(res);
-
-                    if(ms.equals("CHK")) {
+                    if(ms.equals("CHK") && !res.getEmails().isEmpty()) {
                         Platform.runLater(
                                 () -> {
                                     model.addAllEmail(res.getEmails());
@@ -213,6 +210,7 @@ public class MainViewController {
                 } else  try {
                     Thread.sleep(10000);
                 } catch (InterruptedException ignored) {}
+                System.out.println("ho fatto"+ms);
             }
         }).start();
     }

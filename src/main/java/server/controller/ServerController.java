@@ -39,7 +39,7 @@ public class ServerController {
     private void startServer() {
         MemoryManager mem = null;
         try {
-            mem = new MemoryManager(model);
+            mem = new MemoryManager();
         } catch (IOException e) {
             model.setLog(model.getLog() + "FATAL ERROR: Corrupt Index "+"\n" );
         }
@@ -72,17 +72,17 @@ public class ServerController {
 
                         }catch(Exception e ){
                             Platform.runLater(
-                                    () -> {
-                                        model.setLog(model.getLog() +"[SERVER] Connection Error, Could not read from client\n" );
-                                    });}
+                                    () -> model.setLog(model.getLog() +"[SERVER] Connection Error, Could not read from client\n" ));}
                     });
                 }catch(Exception e){model.setLog(model.getLog() +"[SERVER] Connection Error, Socket error" );}
-
+                Platform.runLater(
+                        () ->txtAreaLog.setScrollTop(Double.MIN_VALUE));
             }
         }).start();
         }else closeServer();
 
     }
+
 
 
     private void closeServer(){

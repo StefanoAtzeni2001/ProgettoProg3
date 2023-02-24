@@ -169,27 +169,27 @@ public class MainViewController {
         new Thread(() -> {
             String msg="ALL";
             final String myAccount=model.getAccount();
-            int sleepTime=7000;
+            int sleepTime=15000;
             while(running) {
                 Connection conn = new Connection();
                 Email email = new Email(0,myAccount, null, "", "", LocalDateTime.now());
                 Message res = conn.sendMessage(new Message(msg, List.of(email)));
                 if (res.getMsg().equals("OK")){//Server received message
                     if(!res.getEmails().isEmpty()) {//Server sent some emails
+                        ackMails(res);
                         Platform.runLater(() -> {
                             model.addAllEmail(res.getEmails());
                             Scene scene = stage.getScene();
                             if (scene.lookup("#listPane") != null) loadListView();
                         });
                         if (msg.equals("CHK")) { //client received new emails
-                            ackMails(res);
                             Platform.runLater(() -> showInfoDialog("You received new emails ", "check your inbox!"));
                         }else {//client received all inbox
                             msg = "CHK";
                         }
                     }
                 } else if (res.getMsg().equals("DWN")) {//Server didn't receive respond
-                    Platform.runLater(() -> showErrorDialog("Server is not responding...\nPlease try later"));
+                    Platform.runLater(() -> showErrorDialog("Connection Lost ","Server is not responding...\nPlease try later"));
                     sleepTime = 10000;
                 }
                 try {

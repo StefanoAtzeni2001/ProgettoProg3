@@ -39,7 +39,7 @@ public class ServerController {
     private void startServer() {
         MemoryManager mem = null;
         try {
-            mem = new MemoryManager(model);
+            mem = new MemoryManager();
         } catch (IOException e) {
             model.setLog(model.getLog() + "FATAL ERROR: Corrupt Index "+"\n" );
         }

@@ -12,6 +12,6 @@ public class ServerModel {
     }
 
     public StringProperty logProperty(){return log;}
-    public void setLog(String s){log.setValue(s);}
-    public String getLog(){return log.getValue();}
+    public synchronized void  setLog(String s){log.setValue(s);}
+    public synchronized String getLog(){return log.getValue();}
 }

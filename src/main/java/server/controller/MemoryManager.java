@@ -2,12 +2,16 @@ package server.controller;
 
 import com.google.gson.Gson;
 import server.model.IdSequence;
-import shared.Email;
 import server.model.ObjString;
-import server.model.ServerModel;
+import shared.Email;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class MemoryManager {
     private final IdSequence ID_Seq;

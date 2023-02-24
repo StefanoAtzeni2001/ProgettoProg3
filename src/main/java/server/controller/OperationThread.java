@@ -71,8 +71,8 @@ public class OperationThread implements Runnable{
                 }
                 case "ALL" -> {
                     //synch su cartella dell'account tramite ObjString
-                    synchronized (mem.findAccount(msg.getEmails().get(0).getSender())) {
-                        String dest = msg.getEmails().get(0).getSender();
+                    String dest = msg.getEmails().get(0).getSender();
+                    synchronized (mem.findAccount(dest)) {
                         List<Email> list= mem.getMails(true, dest);
                         Platform.runLater(()-> model.setLog(model.getLog()+"[SERVER] sending - "+list.size()+" to "+dest+"\n" ));
                         out.writeObject(new Message("OK",list));
@@ -80,8 +80,8 @@ public class OperationThread implements Runnable{
                 }
                 case "CHK" -> {
                     //synch su cartella dell'account tramite ObjString
-                    synchronized (mem.findAccount(msg.getEmails().get(0).getSender())) {
-                        String dest = msg.getEmails().get(0).getSender();
+                    String dest = msg.getEmails().get(0).getSender();
+                    synchronized (mem.findAccount(dest)) {
                         List<Email> list= mem.getMails(false, dest);
                         Platform.runLater(()->  model.setLog(model.getLog()+"[SERVER] sending - "+list.size()+" to "+dest+"\n" ));
                         out.writeObject(new Message("OK", mem.getMails(false, dest)));

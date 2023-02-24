@@ -94,8 +94,8 @@ public class OperationThread implements Runnable{
                         List<String> IDs = msg.getEmails().get(0).getReceivers();
                         String target = msg.getEmails().get(0).getSender();
                         for (String i : IDs) {
-                            mem.move_email(i, target);
-                            Platform.runLater(()-> model.setLog(model.getLog()+"{ "+i+" } - "+target+" moved\n" ));
+                            if(mem.move_email(i, target))
+                                Platform.runLater(()-> model.setLog(model.getLog()+"{ "+i+" } - "+target+" moved\n" ));
                         }
                     }
                 }

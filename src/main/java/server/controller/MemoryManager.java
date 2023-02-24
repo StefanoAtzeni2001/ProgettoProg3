@@ -114,13 +114,13 @@ public class MemoryManager {
         return ok;
     }
 
-    public void move_email(String ID,String dest){
+    public boolean move_email(String ID,String dest){
         String path1 = dirpath+"/"+ dest + "/InArrivo/" + ID;
         String path2 = dirpath+"/"+ dest + "/Ricevute/" + ID;
 
         File sourceFile = new File(path1);
         File targetFile = new File(path2);
-        sourceFile.renameTo(targetFile);
+        return sourceFile.renameTo(targetFile);
     }
 
     public ArrayList<Email> getMails(boolean bool,String dest) throws IOException, ClassNotFoundException {

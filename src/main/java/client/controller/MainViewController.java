@@ -184,9 +184,8 @@ public class MainViewController {
                         });
                         if (msg.equals("CHK")) { //client received new emails
                             Platform.runLater(() -> showInfoDialog("You received new emails ", "check your inbox!"));
-                        }else {//client received all inbox
-                            msg = "CHK";
                         }
+                        msg = "CHK";
                     }
                 } else if (res.getMsg().equals("DWN")) {//Server didn't receive respond
                     Platform.runLater(() -> showErrorDialog("Connection Lost ","Server is not responding...\nPlease try later"));
